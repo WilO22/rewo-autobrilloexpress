@@ -42,18 +42,27 @@ export class OrderService {
     const orderRef = doc(this.firestore, `orders/${orderId}`);
 
     await runTransaction(this.firestore, async (transaction) => {
-      for (const req of servicePkg.requiredItems) {
-        const invRef = doc(this.firestore, `inventory/${req.itemId}`);
-        const invDoc = await transaction.get(invRef);
+      // 1. PRIMERO: Realizar todas las LECTURAS
+      const inventoryReads = await Promise.all(
+        servicePkg.requiredItems.map(req => {
+          const ref = doc(this.firestore, `inventory/${req.itemId}`);
+          return transaction.get(ref).then(snap => ({ req, snap, ref }));
+        })
+      );
 
-        if (!invDoc.exists()) throw new Error(`El item ${req.itemId} no existe en inventario.`);
-
-        const currentStock = invDoc.data()?.['stock'] || 0;
+      // 2. SEGUNDO: Validaciones basadas en las lecturas
+      for (const { req, snap } of inventoryReads) {
+        if (!snap.exists()) throw new Error(`El item ${req.itemId} no existe en inventario.`);
+        const currentStock = snap.data()?.['stock'] || 0;
         if (currentStock < req.quantity) {
-          throw new Error(`Stock insuficiente para item: ${req.itemId}`);
+          throw new Error(`Stock insuficiente para item: ${snap.data()?.['name'] || req.itemId}`);
         }
+      }
 
-        transaction.update(invRef, { stock: currentStock - req.quantity });
+      // 3. TERCERO: Realizar todas las ESCRITURAS
+      for (const { req, snap, ref } of inventoryReads) {
+        const currentStock = snap.data()?.['stock'] || 0;
+        transaction.update(ref, { stock: currentStock - req.quantity });
       }
 
       transaction.update(orderRef, {
