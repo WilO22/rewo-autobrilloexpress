@@ -1,15 +1,20 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp } from '@angular/fire/firestore';
 import { ServicePackageService } from '../../../core/services/service-package';
+import { CustomerService } from '../../../core/services/customer';
+import { MembershipService } from '../../../core/services/membership';
 import { OrderService } from '../../../core/services/order';
 import { BranchService } from '../../../core/services/branch';
-import { ServicePackage } from '../../../core/models';
+import { ServicePackage, Customer, Membership } from '../../../core/models';
+
+import { CurrencyPipe, CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-order-new',
-  imports: [RouterLink],
+  standalone: true,
+  imports: [RouterLink, CurrencyPipe, CommonModule],
   templateUrl: './order-new.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -18,13 +23,19 @@ export class OrderNew {
   private orderService = inject(OrderService);
   private branchService = inject(BranchService);
   private packageService = inject(ServicePackageService);
+  private customerService = inject(CustomerService);
+  private membershipService = inject(MembershipService);
 
-  /** Catálogo de paquetes desde Firestore */
+  /** Catálogo de datos reactivos */
   packages = toSignal(this.packageService.getPackages(), { initialValue: [] as ServicePackage[] });
+  customers = toSignal(this.customerService.getCustomers(100), { initialValue: [] as Customer[] });
+  memberships = toSignal(this.membershipService.getMemberships(), { initialValue: [] as Membership[] });
 
   /** Estado del formulario */
   vehiclePlate = signal('');
   selectedPackage = signal<ServicePackage | null>(null);
+  selectedCustomer = signal<Customer | null>(null);
+  finalPrice = signal(0);
   scheduledDate = signal('');
   scheduledTime = signal('');
   isSubmitting = signal(false);
@@ -32,6 +43,37 @@ export class OrderNew {
 
   selectPackage(pkg: ServicePackage) {
     this.selectedPackage.set(pkg);
+    this.calculateFinalPrice();
+  }
+
+  selectCustomer(customer: Customer) {
+    this.selectedCustomer.set(customer);
+    this.vehiclePlate.set(customer.activePlate || '');
+    this.calculateFinalPrice();
+  }
+
+  /**
+   * Lógica crítica: Precio 0 si el cliente tiene membresía ILIMITADA.
+   * Basado en directiva de Gemini 3.1 Pro aceptada por usuario.
+   */
+  private calculateFinalPrice() {
+    const pkg = this.selectedPackage();
+    const customer = this.selectedCustomer();
+    
+    if (!pkg) {
+      this.finalPrice.set(0);
+      return;
+    }
+
+    if (customer?.membershipId) {
+      const membership = this.memberships().find(m => m.id === customer.membershipId);
+      if (membership?.type === 'ILIMITADO') {
+        this.finalPrice.set(0);
+        return;
+      }
+    }
+
+    this.finalPrice.set(pkg.price);
   }
 
   async submitOrder() {
@@ -51,17 +93,22 @@ export class OrderNew {
     this.errorMessage.set('');
 
     try {
-      const scheduledAt = Timestamp.fromDate(
-        new Date(`${date}T${time || '00:00'}`)
-      );
+      // Formateo robusto de fecha: evita problemas de zona horaria y formatos de browser
+      const [year, month, day] = date.split('-').map(Number);
+      const [hours, minutes] = (time || '00:00').split(':').map(Number);
+      
+      const d = new Date(year, month - 1, day, hours, minutes);
+      const scheduledAt = Timestamp.fromDate(d);
+
+      const customer = this.selectedCustomer();
 
       await this.orderService.createOrder({
         branchId,
-        customerId: '',
+        customerId: customer?.id || '',
         vehiclePlate: plate,
         serviceId: pkg.id,
         couponId: null,
-        finalPrice: pkg.price,
+        finalPrice: this.finalPrice(),
         earnedPoints: pkg.pointsValue,
         status: 'AGENDADO',
         scheduledAt

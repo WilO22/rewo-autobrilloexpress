@@ -76,14 +76,36 @@ export class OrderService {
    * TRANSACCIÓN 2: Completar → Sumar Puntos
    * Invariante SPEC-FIRST Sección 6: Transacción Atómica estricta
    */
+  /**
+   * TRANSACCIÓN 2: Completar → Sumar Puntos (Fidelización)
+   * Invariante SPEC-FIRST Sección 6 y Directiva Gemini 3.1 Pro
+   */
   async completeOrder(orderId: string, customerId: string, earnedPoints: number) {
     const orderRef = doc(this.firestore, `orders/${orderId}`);
+    
+    // Si no hay cliente asociado, solo completamos la orden sin fidelización
+    if (!customerId) {
+       return runTransaction(this.firestore, async (transaction) => {
+         transaction.update(orderRef, {
+           status: 'COMPLETADO' as OrderStatus,
+           updatedAt: serverTimestamp()
+         });
+       });
+    }
+
     const customerRef = doc(this.firestore, `customers/${customerId}`);
 
     await runTransaction(this.firestore, async (transaction) => {
-      const customerDoc = await transaction.get(customerRef);
-      const currentPoints = customerDoc.exists() ? (customerDoc.data()?.['points'] || 0) : 0;
+      // 1. Lecturas
+      const orderSnap = await transaction.get(orderRef);
+      const customerSnap = await transaction.get(customerRef);
 
+      if (!orderSnap.exists()) throw new Error("La orden no existe.");
+      if (orderSnap.data()?.['status'] === 'COMPLETADO') throw new Error("La orden ya está completada.");
+
+      const currentPoints = customerSnap.exists() ? (customerSnap.data()?.['points'] || 0) : 0;
+
+      // 2. Escrituras atómicas
       transaction.update(customerRef, { points: currentPoints + earnedPoints });
       transaction.update(orderRef, {
         status: 'COMPLETADO' as OrderStatus,

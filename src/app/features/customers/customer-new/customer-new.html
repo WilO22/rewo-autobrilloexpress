@@ -1,0 +1,85 @@
+<div class="max-w-4xl mx-auto p-6">
+  <!-- Header -->
+  <header class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-black text-white tracking-tighter flex items-center gap-3">
+         NUEVO CLIENTE
+      </h1>
+      <p class="text-gray-400 font-medium">Registrá un cliente para el programa de fidelización.</p>
+    </div>
+    <button routerLink="/app/clientes" 
+            class="px-4 py-2 border border-white/10 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all text-sm font-bold uppercase tracking-widest">
+      Cancelar
+    </button>
+  </header>
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-400 text-sm animate-in slide-in-from-top-2 duration-300">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Form Card -->
+  <div class="bg-navy/40 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-2xl overflow-hidden relative group">
+    <div class="absolute inset-0 bg-gradient-to-br from-cian/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+    
+    <div class="relative z-10 space-y-8">
+      <!-- Sección: Información Básica -->
+      <section class="space-y-6">
+        <div class="flex items-center gap-3 text-cian">
+          <span class="w-8 h-8 rounded-lg bg-cian/10 flex items-center justify-center text-sm font-bold italic">01</span>
+          <h2 class="text-xs font-black uppercase tracking-[0.2em]">Datos Personales</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Nombre Completo *</label>
+            <input [value]="name()" (input)="name.set($any($event.target).value)"
+                   placeholder="Ej. Juan Pérez"
+                   class="w-full bg-navy/60 border border-white/10 rounded-2xl px-5 py-4 text-white focus:border-cian/50 outline-none transition-all placeholder:text-gray-600">
+          </div>
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Correo Electrónico</label>
+            <input type="email" [value]="email()" (input)="email.set($any($event.target).value)"
+                   placeholder="juan@ejemplo.com"
+                   class="w-full bg-navy/60 border border-white/10 rounded-2xl px-5 py-4 text-white focus:border-cian/50 outline-none transition-all placeholder:text-gray-600">
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección: Vehículo -->
+      <section class="space-y-6">
+        <div class="flex items-center gap-3 text-cian text-sm font-bold italic">
+          <span class="w-8 h-8 rounded-lg bg-cian/10 flex items-center justify-center">02</span>
+          <h2 class="text-xs font-black uppercase tracking-[0.2em]">Identificación Vehicular</h2>
+        </div>
+
+        <div class="space-y-2 max-w-sm">
+          <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Matrícula / Placa principal *</label>
+          <input [value]="activePlate()" (input)="activePlate.set($any($event.target).value)"
+                 placeholder="ABC-123"
+                 class="w-full bg-navy/60 border border-white/20 rounded-2xl px-5 py-4 text-white focus:border-cian outline-none transition-all placeholder:text-gray-600 text-xl font-bold tracking-widest uppercase">
+          <p class="text-[10px] text-gray-500 italic mt-2">Esta placa se usará para el seguimiento de puntos.</p>
+        </div>
+      </section>
+
+      <!-- Footer Action -->
+      <footer class="pt-8 border-t border-white/5 flex items-center justify-end">
+        <button (click)="onSubmit()"
+                [disabled]="isLoading()"
+                class="relative group px-10 py-4 bg-white text-navy font-black rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-cian/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100">
+          <span class="relative z-10 flex items-center gap-2">
+            @if (isLoading()) {
+              <div class="w-4 h-4 border-2 border-navy/30 border-t-navy rounded-full animate-spin"></div>
+              GUARDANDO...
+            } @else {
+              REGISTRAR CLIENTE
+            }
+          </span>
+          <div class="absolute inset-x-0 bottom-0 h-1 bg-cian scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
