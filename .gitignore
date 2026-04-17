@@ -42,3 +42,16 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Agent & Personal Config
+.gemini/
+.agent/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Firebase Logs
+firebase-debug.log
+firebase-debug.*.log
