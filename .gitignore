@@ -51,6 +51,7 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+src/environments/
 
 # Firebase Logs
 firebase-debug.log
