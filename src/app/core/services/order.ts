@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  Firestore, collection, query, where, orderBy, limit,
+  Firestore, collection, query, where, limit,
   doc, addDoc, runTransaction, serverTimestamp
 } from '@angular/fire/firestore';
 import { collectionData } from '@angular/fire/firestore';
@@ -19,7 +19,6 @@ export class OrderService {
     const q = query(
       ref,
       where('branchId', '==', branchId),
-      orderBy('scheduledAt', 'desc'),
       limit(maxResults)
     );
     return collectionData(q, { idField: 'id' }) as Observable<Order[]>;
