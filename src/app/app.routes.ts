@@ -8,7 +8,9 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'agenda', pathMatch: 'full' },
       { path: 'agenda', loadComponent: () => import('./features/orders/order-board/order-board').then(m => m.OrderBoard) },
-      { path: 'agenda/nueva', loadComponent: () => import('./features/orders/order-new/order-new').then(m => m.OrderNew) }
+      { path: 'agenda/nueva', loadComponent: () => import('./features/orders/order-new/order-new').then(m => m.OrderNew) },
+      { path: 'clientes', loadComponent: () => import('./features/customers/customer-list/customer-list').then(m => m.CustomerList) },
+      { path: 'clientes/:id', loadComponent: () => import('./features/customers/customer-detail/customer-detail').then(m => m.CustomerDetail) }
     ]
   },
   { path: '**', redirectTo: '' }
