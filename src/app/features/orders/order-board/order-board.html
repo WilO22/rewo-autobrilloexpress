@@ -1,0 +1,87 @@
+<div class="h-full flex flex-col gap-6">
+  <!-- Header con acciones -->
+  <div class="flex justify-between items-center bg-gray-900/40 p-6 rounded-2xl border border-cyan-500/20 backdrop-blur-xl">
+    <div>
+      <h1 class="text-2xl font-bold text-white tracking-tight">Agenda Operativa</h1>
+      <p class="text-cyan-400/70 text-sm mt-1">Sede activa: Norte</p>
+    </div>
+    <button routerLink="/app/agenda/nueva" class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Nueva Orden
+    </button>
+  </div>
+
+  <!-- Board / Pipeline de Órdenes -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+    <!-- Columna Agendados -->
+    <div class="flex flex-col gap-4">
+      <h2 class="text-white/80 font-semibold px-2 flex justify-between">
+        <span>🗓 Agendados</span>
+        <span class="bg-gray-800 text-xs px-2 py-1 rounded-full text-cyan-400">1</span>
+      </h2>
+      <div class="bg-gray-800/20 rounded-xl p-4 flex flex-col gap-4 border border-white/5 h-full overflow-y-auto">
+        <!-- Tarjeta de Orden -->
+        @for(order of orders; track order.id) {
+          @if(order.status === 'AGENDADO') {
+            <div class="bg-gray-900/60 p-4 rounded-lg border border-cyan-500/10 hover:border-cyan-500/30 transition duration-300">
+              <div class="flex justify-between items-start mb-3">
+                <span class="text-lg font-bold text-white bg-gray-800 px-3 py-1 rounded-md">{{ order.licensePlate }}</span>
+                <span class="text-xs font-medium text-cyan-400 bg-cyan-900/30 px-2 py-1 rounded-full">{{ order.time }}</span>
+              </div>
+              <p class="text-gray-400 text-sm mb-4">{{ order.package }}</p>
+              <button class="w-full bg-gray-800 hover:bg-gray-700 text-white text-sm py-2 rounded transition-colors border border-gray-600">
+                Iniciar Lavado
+              </button>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Columna En Proceso -->
+    <div class="flex flex-col gap-4">
+      <h2 class="text-cyan-400 font-semibold px-2 flex justify-between">
+        <span>⚡ En Proceso</span>
+        <span class="bg-cyan-900/30 text-xs px-2 py-1 rounded-full text-cyan-400">1</span>
+      </h2>
+      <div class="bg-gray-800/20 rounded-xl p-4 flex flex-col gap-4 border border-cyan-500/10 h-full overflow-y-auto shadow-[inset_0_0_40px_rgba(34,211,238,0.03)]">
+        @for(order of orders; track order.id) {
+          @if(order.status === 'EN_PROCESO') {
+            <div class="bg-gray-900/60 p-4 rounded-lg border border-cyan-500/30 relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+              <div class="flex justify-between items-start mb-3">
+                <span class="text-lg font-bold text-white">{{ order.licensePlate }}</span>
+              </div>
+              <p class="text-gray-400 text-sm mb-4">{{ order.package }}</p>
+              <button class="w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-sm py-2 rounded transition-all font-semibold">
+                Marcar Completado
+              </button>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Columna Completados -->
+    <div class="flex flex-col gap-4">
+      <h2 class="text-gray-500 font-semibold px-2 flex justify-between">
+        <span>✅ Completados (Hoy)</span>
+        <span class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400">1</span>
+      </h2>
+      <div class="bg-gray-800/10 rounded-xl p-4 flex flex-col gap-4 border border-white/5 h-full overflow-y-auto">
+        @for(order of orders; track order.id) {
+          @if(order.status === 'COMPLETADO') {
+            <div class="bg-gray-900/30 p-4 rounded-lg border border-white/5 opacity-70">
+              <div class="flex justify-between items-start">
+                <span class="text-lg font-semibold text-gray-300">{{ order.licensePlate }}</span>
+              </div>
+              <p class="text-gray-500 text-sm">{{ order.package }}</p>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

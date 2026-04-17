@@ -1,0 +1,86 @@
+<div class="h-full flex items-center justify-center p-4">
+  <div class="w-full max-w-2xl bg-gray-900/40 p-8 rounded-2xl border border-cyan-500/20 backdrop-blur-xl relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+    <!-- Glow de fondo -->
+    <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+    <div class="mb-8 relative z-10 flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-bold text-white tracking-tight">Nueva Orden</h2>
+        <p class="text-cyan-400/70 mt-1 text-sm">Agendar lavado para la sede activa.</p>
+      </div>
+      <button routerLink="/app/agenda" class="text-gray-500 hover:text-white transition-colors bg-gray-800/50 hover:bg-gray-700/50 p-2 rounded-full">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <form class="space-y-6 relative z-10">
+      <!-- Vehículo -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Placa del Vehículo</label>
+          <input type="text" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 uppercase placeholder-gray-600 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]" placeholder="ABC-123">
+        </div>
+        <div class="col-span-2 sm:col-span-1">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Buscar Cliente (Opcional)</label>
+          <input type="text" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 placeholder-gray-600 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]" placeholder="Teléfono o Nombre">
+        </div>
+      </div>
+
+      <!-- Paquete de Servicio -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-3">Paquete de Servicio</label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Opcion 1 -->
+          <label class="cursor-pointer">
+            <input type="radio" name="package" class="peer sr-only">
+            <div class="bg-gray-800/30 border border-gray-700/50 rounded-xl p-4 hover:border-cyan-500/30 peer-checked:border-cyan-500 peer-checked:bg-cyan-900/20 transition-all">
+              <div class="font-semibold text-white">Básico</div>
+              <div class="text-sm text-gray-400 mt-1">S/ 25.00</div>
+            </div>
+          </label>
+          <!-- Opcion 2 -->
+          <label class="cursor-pointer">
+            <input type="radio" name="package" class="peer sr-only" checked>
+            <div class="bg-gray-800/30 border border-cyan-500/50 rounded-xl p-4 hover:border-cyan-500 peer-checked:border-cyan-400 peer-checked:bg-cyan-900/30 transition-all shadow-[0_0_15px_rgba(34,211,238,0.15)] relative overflow-hidden">
+              <div class="absolute top-0 left-0 w-1 h-full bg-cyan-400"></div>
+              <div class="font-semibold text-white">Premium</div>
+              <div class="text-sm text-cyan-300/70 mt-1">S/ 45.00</div>
+            </div>
+          </label>
+          <!-- Opcion 3 -->
+          <label class="cursor-pointer">
+            <input type="radio" name="package" class="peer sr-only">
+            <div class="bg-gray-800/30 border border-gray-700/50 rounded-xl p-4 hover:border-cyan-500/30 peer-checked:border-cyan-500 peer-checked:bg-cyan-900/20 transition-all">
+              <div class="font-semibold text-white">VIP Ceramic</div>
+              <div class="text-sm text-gray-400 mt-1">S/ 90.00</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Agendamiento -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Fecha</label>
+          <input type="date" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all [color-scheme:dark] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Hora (Aprox)</label>
+          <input type="time" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all [color-scheme:dark] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-6 mt-6 flex items-center justify-end gap-4 border-t border-gray-800/50">
+        <button routerLink="/app/agenda" type="button" class="text-gray-400 hover:text-white font-medium px-6 py-3 transition-colors">
+          Cancelar
+        </button>
+        <button type="button" class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-8 py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+          Confirmar Agenda
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
