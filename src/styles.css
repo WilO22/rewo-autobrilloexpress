@@ -1,15 +1,14 @@
 @import "tailwindcss";
+@source "./app/**/*.html";
+@source "./app/**/*.ts";
+
 
 @theme {
   --color-navy: #080E1E;
   --color-cian: #22D3EE;
-  
-  /* Gradiente premium para fondos */
-  --background-image-glass: linear-gradient(135deg, rgba(8, 14, 30, 0.8), rgba(8, 14, 30, 0.95));
 }
 
-@layer base {
-  body {
-    @apply bg-navy text-white min-h-screen font-sans antialiased;
-  }
+body {
+  background-color: var(--color-navy);
+  color: white;
 }
