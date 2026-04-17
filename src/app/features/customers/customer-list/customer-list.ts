@@ -1,12 +1,23 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { CustomerService } from '../../../core/services/customer';
+import { Customer } from '../../../core/models';
 
 @Component({
   selector: 'app-customer-list',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './customer-list.html'
+  imports: [RouterLink, DecimalPipe],
+  templateUrl: './customer-list.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomerList {
+  private customerService = inject(CustomerService);
+
+  customers = toSignal(this.customerService.getCustomers(), { initialValue: [] as Customer[] });
+
+  /** Determina si el cliente es VIB (>= 1000 puntos) */
+  isVib(customer: Customer): boolean {
+    return customer.points >= 1000;
+  }
 }

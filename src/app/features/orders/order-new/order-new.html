@@ -15,12 +15,18 @@
       </button>
     </div>
 
-    <form class="space-y-6 relative z-10">
+    <div class="space-y-6 relative z-10">
       <!-- Vehículo -->
       <div class="grid grid-cols-2 gap-4">
         <div class="col-span-2 sm:col-span-1">
           <label class="block text-sm font-medium text-gray-300 mb-2">Placa del Vehículo</label>
-          <input type="text" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 uppercase placeholder-gray-600 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]" placeholder="ABC-123">
+          <input
+            type="text"
+            class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 uppercase placeholder-gray-600 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
+            placeholder="ABC-123"
+            [value]="vehiclePlate()"
+            (input)="vehiclePlate.set($any($event.target).value)"
+          >
         </div>
         <div class="col-span-2 sm:col-span-1">
           <label class="block text-sm font-medium text-gray-300 mb-2">Buscar Cliente (Opcional)</label>
@@ -32,31 +38,26 @@
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-3">Paquete de Servicio</label>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Opcion 1 -->
-          <label class="cursor-pointer">
-            <input type="radio" name="package" class="peer sr-only">
-            <div class="bg-gray-800/30 border border-gray-700/50 rounded-xl p-4 hover:border-cyan-500/30 peer-checked:border-cyan-500 peer-checked:bg-cyan-900/20 transition-all">
-              <div class="font-semibold text-white">Básico</div>
-              <div class="text-sm text-gray-400 mt-1">S/ 25.00</div>
-            </div>
-          </label>
-          <!-- Opcion 2 -->
-          <label class="cursor-pointer">
-            <input type="radio" name="package" class="peer sr-only" checked>
-            <div class="bg-gray-800/30 border border-cyan-500/50 rounded-xl p-4 hover:border-cyan-500 peer-checked:border-cyan-400 peer-checked:bg-cyan-900/30 transition-all shadow-[0_0_15px_rgba(34,211,238,0.15)] relative overflow-hidden">
-              <div class="absolute top-0 left-0 w-1 h-full bg-cyan-400"></div>
-              <div class="font-semibold text-white">Premium</div>
-              <div class="text-sm text-cyan-300/70 mt-1">S/ 45.00</div>
-            </div>
-          </label>
-          <!-- Opcion 3 -->
-          <label class="cursor-pointer">
-            <input type="radio" name="package" class="peer sr-only">
-            <div class="bg-gray-800/30 border border-gray-700/50 rounded-xl p-4 hover:border-cyan-500/30 peer-checked:border-cyan-500 peer-checked:bg-cyan-900/20 transition-all">
-              <div class="font-semibold text-white">VIP Ceramic</div>
-              <div class="text-sm text-gray-400 mt-1">S/ 90.00</div>
-            </div>
-          </label>
+          @for(pkg of packages(); track pkg.id) {
+            <button
+              type="button"
+              (click)="selectPackage(pkg)"
+              [class]="selectedPackage()?.id === pkg.id
+                ? 'bg-cyan-900/30 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.15)]'
+                : 'bg-gray-800/30 border-gray-700/50 hover:border-cyan-500/30'"
+              class="border rounded-xl p-4 text-left transition-all relative overflow-hidden"
+            >
+              @if(selectedPackage()?.id === pkg.id) {
+                <div class="absolute top-0 left-0 w-1 h-full bg-cyan-400"></div>
+              }
+              <div class="font-semibold text-white">{{ pkg.name }}</div>
+              <div class="text-sm mt-1" [class]="selectedPackage()?.id === pkg.id ? 'text-cyan-300/70' : 'text-gray-400'">
+                S/ {{ pkg.price.toFixed(2) }}
+              </div>
+            </button>
+          } @empty {
+            <p class="text-gray-500 text-sm col-span-full">Cargando paquetes...</p>
+          }
         </div>
       </div>
 
@@ -64,23 +65,49 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-2">Fecha</label>
-          <input type="date" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all [color-scheme:dark] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+          <input
+            type="date"
+            class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all [color-scheme:dark] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
+            [value]="scheduledDate()"
+            (input)="scheduledDate.set($any($event.target).value)"
+          >
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-2">Hora (Aprox)</label>
-          <input type="time" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all [color-scheme:dark] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+          <input
+            type="time"
+            class="w-full bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all [color-scheme:dark] shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
+            [value]="scheduledTime()"
+            (input)="scheduledTime.set($any($event.target).value)"
+          >
         </div>
       </div>
+
+      <!-- Error message -->
+      @if(errorMessage()) {
+        <div class="bg-red-900/30 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">
+          {{ errorMessage() }}
+        </div>
+      }
 
       <!-- Actions -->
       <div class="pt-6 mt-6 flex items-center justify-end gap-4 border-t border-gray-800/50">
         <button routerLink="/app/agenda" type="button" class="text-gray-400 hover:text-white font-medium px-6 py-3 transition-colors">
           Cancelar
         </button>
-        <button type="button" class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-8 py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
-          Confirmar Agenda
+        <button
+          type="button"
+          (click)="submitOrder()"
+          [disabled]="isSubmitting()"
+          class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-8 py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if(isSubmitting()) {
+            Agendando...
+          } @else {
+            Confirmar Agenda
+          }
         </button>
       </div>
-    </form>
+    </div>
   </div>
 </div>

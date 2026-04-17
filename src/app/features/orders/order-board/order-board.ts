@@ -1,22 +1,39 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { BranchService } from '../../../core/services/branch';
+import { OrderService } from '../../../core/services/order';
+import { Order } from '../../../core/models';
+import { switchMap, of } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-order-board',
-  standalone: true,
-  imports: [CommonModule, RouterLink],
-  templateUrl: './order-board.html'
+  imports: [RouterLink],
+  templateUrl: './order-board.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderBoard {
-  branchService = inject(BranchService);
+  private branchService = inject(BranchService);
+  private orderService = inject(OrderService);
 
-  // Mocked signals for visual phase
-  // En producción se conectará a firestore collectionData
-  orders = [
-    { id: 'ORD-1', licensePlate: 'ABC-123', status: 'AGENDADO', package: 'Lavado Premium', time: '10:00 AM' },
-    { id: 'ORD-2', licensePlate: 'XYZ-987', status: 'EN_PROCESO', package: 'Cera Carnauba', time: '09:30 AM' },
-    { id: 'ORD-3', licensePlate: 'DEF-456', status: 'COMPLETADO', package: 'Lavado Básico', time: '08:00 AM' }
-  ];
+  /** Órdenes reactivas: cambian automáticamente con la sucursal activa */
+  private orders$ = toObservable(this.branchService.activeBranchId).pipe(
+    switchMap(branchId =>
+      branchId ? this.orderService.getOrdersByBranch(branchId) : of([])
+    )
+  );
+
+  orders = toSignal(this.orders$, { initialValue: [] as Order[] });
+
+  /** Derivados por estado para el pipeline visual */
+  agendados = computed(() => this.orders().filter(o => o.status === 'AGENDADO'));
+  enProceso = computed(() => this.orders().filter(o => o.status === 'EN_PROCESO'));
+  completados = computed(() => this.orders().filter(o => o.status === 'COMPLETADO'));
+
+  branchName = computed(() => {
+    const id = this.branchService.activeBranchId();
+    const branch = this.branchService.branches().find(b => b.id === id);
+    return branch?.name ?? 'Sin sede';
+  });
 }
