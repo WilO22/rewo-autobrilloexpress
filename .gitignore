@@ -61,3 +61,4 @@ seed.mjs
 # Firebase Logs
 firebase-debug.log
 firebase-debug.*.log
+/.firebase/
