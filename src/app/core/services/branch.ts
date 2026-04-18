@@ -13,6 +13,7 @@ export class BranchService {
   private firestore = inject(Firestore);
   
   public activeBranchId = signal<string | null>(null);
+  public showArchived = signal(false);
   
   // Stream de datos crudos (Consulta simple para evitar errores de índices)
   private allBranches = toSignal(
@@ -20,10 +21,13 @@ export class BranchService {
     { initialValue: [] }
   );
 
-  // Señal computada para sedes activas (Reactividad local, más segura y rápida)
-  public branches = computed(() => 
-    this.allBranches().filter(b => b.active !== false)
-  );
+  // Señal computada para sedes (Filtro reactivo por estado active)
+  public branches = computed(() => {
+    const archived = this.showArchived();
+    return this.allBranches().filter(b => 
+      archived ? b.active === false : b.active !== false
+    );
+  });
 
   async createBranch(data: Omit<Branch, 'id'>) {
     const ref = collection(this.firestore, 'branches');
@@ -48,6 +52,16 @@ export class BranchService {
     return updateDoc(ref, {
       active: false,
       deletedAt: serverTimestamp()
+    });
+  }
+
+  /** Reactivación de sede */
+  async activateBranch(id: string) {
+    const ref = doc(this.firestore, `branches/${id}`);
+    return updateDoc(ref, {
+      active: true,
+      updatedAt: serverTimestamp(),
+      deletedAt: null
     });
   }
 

@@ -21,10 +21,12 @@ export class BranchList {
 
   // Estados reactivos
   branches = this.branchService.branches;
+  showArchived = this.branchService.showArchived;
   managers = toSignal(this.userService.getStaffByRoles(['MANAGER', 'SUPER_ADMIN']), { initialValue: [] as UserProfile[] });
   
   loading = signal(false);
   showModal = signal(false);
+  modalMode = signal<'edit' | 'delete'>('edit');
   editingBranch = signal<Branch | null>(null);
 
   // Formulario
@@ -36,12 +38,14 @@ export class BranchList {
 
   openCreateModal() {
     this.editingBranch.set(null);
+    this.modalMode.set('edit');
     this.branchForm.reset();
     this.showModal.set(true);
   }
 
   openEditModal(branch: Branch) {
     this.editingBranch.set(branch);
+    this.modalMode.set('edit');
     this.branchForm.patchValue({
       name: branch.name,
       location: branch.location,
@@ -74,20 +78,40 @@ export class BranchList {
     }
   }
 
-  /** Manejo del borrado lógico (archivado) de sedes */
-  async onDeleteBranch(branch: Branch) {
-    const confirmation = confirm(`¿Estás seguro de que deseas cerrar la sede "${branch.name}"? 
-Esta acción ocultará la sede pero mantendrá su historial íntegro.`);
+  /** Abre el modal de confirmación para borrado lógico */
+  onDeleteBranch(branch: Branch) {
+    this.editingBranch.set(branch);
+    this.modalMode.set('delete');
+    this.showModal.set(true);
+  }
 
-    if (!confirmation) return;
+  /** Ejecuta el borrado lógico desde el modal */
+  async confirmDelete() {
+    const branch = this.editingBranch();
+    if (!branch) return;
 
     try {
       this.loading.set(true);
       await this.branchService.deleteBranch(branch.id);
       this.toast.show(`Sede "${branch.name}" archivada correctamente`, 'success');
+      this.showModal.set(false);
     } catch (error: any) {
       console.error('Error al archivar sede:', error);
       this.toast.show('Error al procesar la solicitud', 'error');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  /** Reactivación de una sede archivada */
+  async onActivateBranch(branch: Branch) {
+    try {
+      this.loading.set(true);
+      await this.branchService.activateBranch(branch.id);
+      this.toast.show(`Sede "${branch.name}" reactivada con éxito`, 'success');
+    } catch (error: any) {
+      console.error('Error al reactivar sede:', error);
+      this.toast.show('Error al intentar reactivar la sede', 'error');
     } finally {
       this.loading.set(false);
     }
