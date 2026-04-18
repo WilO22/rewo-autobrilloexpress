@@ -43,17 +43,11 @@ export class UserService {
     return collectionData(ref, { idField: 'uid' }) as Observable<UserProfile[]>;
   }
 
-  /** Solo Managers */
+  /** Solo Managers en tiempo real */
   getManagers(): Observable<UserProfile[]> {
     const ref = collection(this.firestore, 'users');
     const q = query(ref, where('role', '==', 'MANAGER'), where('active', '==', true));
-    
-    return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(doc => ({
-        uid: doc.id,
-        ...doc.data()
-      } as UserProfile)))
-    );
+    return collectionData(q, { idField: 'uid' }) as Observable<UserProfile[]>;
   }
 
   /**
