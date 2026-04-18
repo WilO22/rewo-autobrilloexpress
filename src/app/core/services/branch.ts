@@ -1,6 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { 
-  Firestore, collection, addDoc, updateDoc, doc, serverTimestamp, collectionData, query, where, or
+  Firestore, collection, addDoc, updateDoc, doc, serverTimestamp, collectionData
 } from '@angular/fire/firestore';
 import { Branch } from '../models';
 import { Observable } from 'rxjs';
@@ -14,16 +14,15 @@ export class BranchService {
   
   public activeBranchId = signal<string | null>(null);
   
-  // Stream reactivo de sedes activas
-  public branches = toSignal(
-    collectionData(
-      query(
-        collection(this.firestore, 'branches'),
-        or(where('active', '==', true), where('active', '==', null))
-      ), 
-      { idField: 'id' }
-    ) as Observable<Branch[]>,
+  // Stream de datos crudos (Consulta simple para evitar errores de índices)
+  private allBranches = toSignal(
+    collectionData(collection(this.firestore, 'branches'), { idField: 'id' }) as Observable<Branch[]>,
     { initialValue: [] }
+  );
+
+  // Señal computada para sedes activas (Reactividad local, más segura y rápida)
+  public branches = computed(() => 
+    this.allBranches().filter(b => b.active !== false)
   );
 
   async createBranch(data: Omit<Branch, 'id'>) {

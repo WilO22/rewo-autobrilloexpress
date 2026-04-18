@@ -3,4 +3,8 @@ export interface Branch {
   name: string;
   location: string;
   managerId: string;
+  active?: boolean;
+  createdAt?: any;
+  updatedAt?: any;
+  deletedAt?: any;
 }
