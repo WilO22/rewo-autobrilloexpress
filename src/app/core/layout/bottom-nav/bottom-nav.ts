@@ -12,6 +12,8 @@ export class BottomNav {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  public userRole = this.authService.userRole;
+
   async logout() {
     await this.authService.logout();
     this.router.navigate(['/']);
