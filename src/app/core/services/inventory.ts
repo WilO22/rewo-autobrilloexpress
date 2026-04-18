@@ -2,14 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { Firestore, collection, query, where, collectionData, addDoc, deleteDoc, doc, updateDoc } from '@angular/fire/firestore';
 import { Observable, switchMap, of, map } from 'rxjs';
 import { InventoryItem } from '../models';
-import { AuthService } from './auth';
+import { Identity } from './auth';
 
 @Injectable({
   providedIn: 'root'
 })
-export class InventoryService {
+export class Inventory {
   private firestore = inject(Firestore);
-  private authService = inject(AuthService);
+  private authService = inject(Identity);
 
   /** 
    * Stream reactivo del inventario filtrado por la sede del usuario logueado.

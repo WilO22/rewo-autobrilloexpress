@@ -44,7 +44,7 @@ import { CommonModule } from '@angular/common';
     </div>
   `
 })
-export class ConfirmModalComponent {
+export class ConfirmModal {
   title = input<string>('¿Estás seguro?');
   message = input<string>('Esta acción no se puede deshacer.');
   confirmText = input<string>('Eliminar');

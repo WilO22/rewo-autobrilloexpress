@@ -6,7 +6,7 @@ import { ServicePackage } from '../models';
 @Injectable({
   providedIn: 'root'
 })
-export class ServicePackageService {
+export class ServicePackages {
   private firestore = inject(Firestore);
 
   /** Catálogo de paquetes de servicio (lectura pública según SPEC-FIRST Sección 11) */

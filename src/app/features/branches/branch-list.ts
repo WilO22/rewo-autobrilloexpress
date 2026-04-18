@@ -1,9 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { BranchService } from '../../core/services/branch';
-import { UserService, UserProfile } from '../../core/services/user';
-import { ToastService } from '../../core/services/ui/toast';
+import { Branches } from '../../core/services/branch';
+import { Users, UserProfile } from '../../core/services/user';
+import { Toasts } from '../../core/services/ui/toast';
 import { Branch } from '../../core/models';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -14,9 +14,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
   templateUrl: './branch-list.html'
 })
 export class BranchList {
-  private branchService = inject(BranchService);
-  private userService = inject(UserService);
-  private toast = inject(ToastService);
+  private branchService = inject(Branches);
+  private userService = inject(Users);
+  private toastService = inject(Toasts);
   private fb = inject(FormBuilder);
 
   // Estados reactivos
@@ -63,16 +63,16 @@ export class BranchList {
 
       if (this.editingBranch()) {
         await this.branchService.updateBranch(this.editingBranch()!.id, data);
-        this.toast.show('Sede actualizada correctamente', 'success');
+        this.toastService.show('Sede actualizada correctamente', 'success');
       } else {
         await this.branchService.createBranch(data);
-        this.toast.show('Nueva sede abierta correctamente', 'success');
+        this.toastService.show('Nueva sede abierta correctamente', 'success');
       }
 
       this.showModal.set(false);
     } catch (error: any) {
       console.error('Error al guardar sede:', error);
-      this.toast.show('Error al procesar la solicitud', 'error');
+      this.toastService.show('Error al procesar la solicitud', 'error');
     } finally {
       this.loading.set(false);
     }
@@ -93,11 +93,11 @@ export class BranchList {
     try {
       this.loading.set(true);
       await this.branchService.deleteBranch(branch.id);
-      this.toast.show(`Sede "${branch.name}" archivada correctamente`, 'success');
+      this.toastService.show(`Sede "${branch.name}" archivada correctamente`, 'success');
       this.showModal.set(false);
     } catch (error: any) {
       console.error('Error al archivar sede:', error);
-      this.toast.show('Error al procesar la solicitud', 'error');
+      this.toastService.show('Error al procesar la solicitud', 'error');
     } finally {
       this.loading.set(false);
     }
@@ -108,10 +108,10 @@ export class BranchList {
     try {
       this.loading.set(true);
       await this.branchService.activateBranch(branch.id);
-      this.toast.show(`Sede "${branch.name}" reactivada con éxito`, 'success');
+      this.toastService.show(`Sede "${branch.name}" reactivada con éxito`, 'success');
     } catch (error: any) {
       console.error('Error al reactivar sede:', error);
-      this.toast.show('Error al intentar reactivar la sede', 'error');
+      this.toastService.show('Error al intentar reactivar la sede', 'error');
     } finally {
       this.loading.set(false);
     }

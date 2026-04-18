@@ -9,7 +9,7 @@ import { Membership } from '../models';
 @Injectable({
   providedIn: 'root'
 })
-export class MembershipService {
+export class Memberships {
   private firestore = inject(Firestore);
 
   /**

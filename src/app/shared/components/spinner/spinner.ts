@@ -31,7 +31,7 @@ import { CommonModule } from '@angular/common';
     .size-lg { width: 5rem; height: 5rem; border-width: 6px; }
   `]
 })
-export class ArcticSpinner {
+export class Spinner {
   loading = input<boolean>(false);
   overlay = input<boolean>(false);
   message = input<string>('');

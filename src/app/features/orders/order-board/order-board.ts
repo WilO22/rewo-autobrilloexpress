@@ -1,10 +1,10 @@
 import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { BranchService } from '../../../core/services/branch';
-import { OrderService } from '../../../core/services/order';
-import { ServicePackageService } from '../../../core/services/service-package';
-import { ToastService } from '../../../core/services/ui/toast';
+import { Branches } from '../../../core/services/branch';
+import { Orders } from '../../../core/services/order';
+import { ServicePackages } from '../../../core/services/service-package';
+import { Toasts } from '../../../core/services/ui/toast';
 import { Order, ServicePackage } from '../../../core/models';
 import { switchMap, of, firstValueFrom } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -17,10 +17,10 @@ import { signal } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderBoard {
-  private branchService = inject(BranchService);
-  private orderService = inject(OrderService);
-  private packageService = inject(ServicePackageService);
-  private toast = inject(ToastService);
+  private branchService = inject(Branches);
+  private orderService = inject(Orders);
+  private packageService = inject(ServicePackages);
+  private toastService = inject(Toasts);
 
   /** IDs de órdenes en proceso de transacción (para loading UI) */
   processingIds = signal<Set<string>>(new Set());
@@ -54,16 +54,16 @@ export class OrderBoard {
   async onStartProcessing(order: Order) {
     const pkg = this.packages().find(p => p.id === order.serviceId);
     if (!pkg) {
-      this.toast.error('Error: Paquete de servicio no encontrado.');
+      this.toastService.error('Error: Paquete de servicio no encontrado.');
       return;
     }
 
     this.toggleLoading(order.id, true);
     try {
       await this.orderService.startProcessing(order.id, pkg);
-      this.toast.success(`Lavado iniciado para: ${order.vehiclePlate}`);
+      this.toastService.success(`Lavado iniciado para: ${order.vehiclePlate}`);
     } catch (err: any) {
-      this.toast.error(err.message || 'Error al iniciar el proceso.');
+      this.toastService.error(err.message || 'Error al iniciar el proceso.');
     } finally {
       this.toggleLoading(order.id, false);
     }
@@ -79,9 +79,9 @@ export class OrderBoard {
     this.toggleLoading(order.id, true);
     try {
       await this.orderService.completeOrder(order.id, order.customerId, points);
-      this.toast.success(`Orden ${order.vehiclePlate} completada. +${points} puntos.`);
+      this.toastService.success(`Orden ${order.vehiclePlate} completada. +${points} puntos.`);
     } catch (err: any) {
-      this.toast.error('Error al finalizar la orden.');
+      this.toastService.error('Error al finalizar la orden.');
     } finally {
       this.toggleLoading(order.id, false);
     }

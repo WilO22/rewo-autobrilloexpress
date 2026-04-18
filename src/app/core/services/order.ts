@@ -10,7 +10,7 @@ import { Order, OrderStatus, ServicePackage } from '../models';
 @Injectable({
   providedIn: 'root'
 })
-export class OrderService {
+export class Orders {
   private firestore = inject(Firestore);
 
   /** Órdenes del día por sucursal (ARCH-FIREBASE regla 5: limit) */

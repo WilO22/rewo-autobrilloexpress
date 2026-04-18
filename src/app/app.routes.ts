@@ -45,7 +45,7 @@ export const routes: Routes = [
         path: 'marketing',
         canActivate: [() => import('./core/guards/role.guard').then(m => m.roleGuard)],
         data: { role: 'SUPER_ADMIN' },
-        loadComponent: () => import('./features/marketing/marketing-list').then(m => m.MarketingListComponent)
+        loadComponent: () => import('./features/marketing/marketing-list').then(m => m.MarketingList)
       }
     ]
   },

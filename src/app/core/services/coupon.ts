@@ -10,7 +10,7 @@ import { Coupon } from '../models';
 @Injectable({
   providedIn: 'root'
 })
-export class CouponService {
+export class Coupons {
   private firestore = inject(Firestore);
 
   /**

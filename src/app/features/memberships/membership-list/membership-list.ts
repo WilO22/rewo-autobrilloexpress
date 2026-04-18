@@ -1,7 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MembershipService } from '../../../core/services/membership';
+import { Memberships } from '../../../core/services/membership';
 import { Membership } from '../../../core/models';
 
 @Component({
@@ -15,7 +15,7 @@ import { Membership } from '../../../core/models';
   }
 })
 export class MembershipList {
-  private membershipService = inject(MembershipService);
+  private membershipService = inject(Memberships);
 
   /** Catálogo de membresías reactivo */
   memberships = toSignal(this.membershipService.getMemberships(), { initialValue: [] as Membership[] });

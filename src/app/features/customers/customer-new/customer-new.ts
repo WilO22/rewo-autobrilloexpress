@@ -1,7 +1,7 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { CustomerService } from '../../../core/services/customer';
+import { Customers } from '../../../core/services/customer';
 
 @Component({
   selector: 'app-customer-new',
@@ -14,7 +14,7 @@ import { CustomerService } from '../../../core/services/customer';
   }
 })
 export class CustomerNew {
-  private customerService = inject(CustomerService);
+  private customerService = inject(Customers);
   private router = inject(Router);
 
   // Estados de carga y error

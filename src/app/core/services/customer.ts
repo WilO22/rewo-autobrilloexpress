@@ -10,7 +10,7 @@ import { Customer } from '../models';
 @Injectable({
   providedIn: 'root'
 })
-export class CustomerService {
+export class Customers {
   private firestore = inject(Firestore);
 
   /** Lista paginada de clientes (ARCH-FIREBASE regla 5: limit por defecto) */

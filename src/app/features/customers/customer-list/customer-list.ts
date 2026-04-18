@@ -2,7 +2,7 @@ import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { CustomerService } from '../../../core/services/customer';
+import { Customers } from '../../../core/services/customer';
 import { Customer } from '../../../core/models';
 
 @Component({
@@ -12,7 +12,7 @@ import { Customer } from '../../../core/models';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomerList {
-  private customerService = inject(CustomerService);
+  private customerService = inject(Customers);
 
   customers = toSignal(this.customerService.getCustomers(), { initialValue: [] as Customer[] });
 

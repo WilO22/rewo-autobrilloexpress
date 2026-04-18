@@ -4,10 +4,10 @@ import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { switchMap } from 'rxjs';
 import { Coupon, Membership, CouponType, MembershipType } from '../../core/models';
-import { CouponService } from '../../core/services/coupon';
-import { MembershipService } from '../../core/services/membership';
-import { AuthService } from '../../core/services/auth';
-import { ToastService } from '../../core/services/ui/toast';
+import { Coupons } from '../../core/services/coupon';
+import { Memberships } from '../../core/services/membership';
+import { Identity } from '../../core/services/auth';
+import { Toasts } from '../../core/services/ui/toast';
 
 @Component({
   selector: 'app-marketing-list',
@@ -15,11 +15,11 @@ import { ToastService } from '../../core/services/ui/toast';
   imports: [CommonModule, FormsModule],
   templateUrl: './marketing-list.html'
 })
-export class MarketingListComponent {
-  private couponService = inject(CouponService);
-  private membershipService = inject(MembershipService);
-  private toastService = inject(ToastService);
-  public authService = inject(AuthService);
+export class MarketingList {
+  private couponService = inject(Coupons);
+  private membershipService = inject(Memberships);
+  private toastService = inject(Toasts);
+  public authService = inject(Identity);
 
   // Estado de Navegación
   activeTab = signal<'coupons' | 'memberships'>('coupons');

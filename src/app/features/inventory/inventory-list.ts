@@ -3,24 +3,24 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
-import { InventoryService } from '../../core/services/inventory';
-import { AuthService } from '../../core/services/auth';
-import { BranchService } from '../../core/services/branch';
-import { ToastService } from '../../core/services/ui/toast';
+import { Inventory } from '../../core/services/inventory';
+import { Identity } from '../../core/services/auth';
+import { Branches } from '../../core/services/branch';
+import { Toasts } from '../../core/services/ui/toast';
 import { InventoryItem } from '../../core/models';
-import { ConfirmModalComponent } from '../../shared/components/confirm-modal/confirm-modal';
+import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
 
 @Component({
   selector: 'app-inventory-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmModalComponent],
+  imports: [CommonModule, FormsModule, ConfirmModal],
   templateUrl: './inventory-list.html',
 })
 export class InventoryList {
-  public inventoryService = inject(InventoryService);
-  public authService = inject(AuthService);
-  public branchService = inject(BranchService);
-  private toastService = inject(ToastService);
+  public inventoryService = inject(Inventory);
+  public authService = inject(Identity);
+  public branchService = inject(Branches);
+  private toastService = inject(Toasts);
 
   // Estado del Modal de Formulario
   isModalOpen = signal(false);

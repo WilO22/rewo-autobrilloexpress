@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { AuthService } from '../../services/auth';
+import { Identity } from '../../services/auth';
 
 @Component({
   selector: 'app-bottom-nav',
@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth';
   templateUrl: './bottom-nav.html',
 })
 export class BottomNav {
-  private authService = inject(AuthService);
+  public authService = inject(Identity);
   private router = inject(Router);
 
   public userRole = this.authService.userRole;

@@ -1,22 +1,22 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { UserService, UserProfile } from '../../core/services/user';
-import { BranchService } from '../../core/services/branch';
-import { ToastService } from '../../core/services/ui/toast';
+import { Users, UserProfile } from '../../core/services/user';
+import { Branches } from '../../core/services/branch';
+import { Toasts } from '../../core/services/ui/toast';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ArcticSpinner } from '../../shared/components/spinner/spinner.component';
+import { Spinner } from '../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-team-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ArcticSpinner],
+  imports: [CommonModule, ReactiveFormsModule, Spinner],
   templateUrl: './team-list.html'
 })
 export class TeamList {
-  private userService = inject(UserService);
-  private branchService = inject(BranchService);
-  private toast = inject(ToastService);
+  private userService = inject(Users);
+  private branchService = inject(Branches);
+  private toastService = inject(Toasts);
   private fb = inject(FormBuilder);
 
   // Datos
@@ -79,14 +79,14 @@ export class TeamList {
           role: userData.role,
           branchId: branchId
         });
-        this.toast.show('Usuario actualizado exitosamente', 'success');
+        this.toastService.show('Usuario actualizado exitosamente', 'success');
       } else {
         // MODO CREACIÓN
         await this.userService.createStaffAccount({
           ...userData,
           branchId: branchId
         }, password);
-        this.toast.show('Usuario creado exitosamente', 'success');
+        this.toastService.show('Usuario creado exitosamente', 'success');
       }
       
       this.showModal.set(false);
@@ -96,7 +96,7 @@ export class TeamList {
       console.error('Error al guardar usuario:', error);
       let msg = this.editingUser() ? 'Error al actualizar' : 'Error al crear la cuenta';
       if (error.code === 'auth/email-already-in-use') msg = 'El email ya está registrado';
-      this.toast.show(msg, 'error');
+      this.toastService.show(msg, 'error');
     } finally {
       this.loading.set(false);
     }
@@ -105,10 +105,10 @@ export class TeamList {
   async toggleStatus(uid: string, currentStatus: boolean) {
     try {
       await this.userService.updateUserStatus(uid, !currentStatus);
-      this.toast.show('Estado actualizado', 'success');
+      this.toastService.show('Estado actualizado', 'success');
       // Eliminado reload() - reactividad automática activada
     } catch (error) {
-      this.toast.show('Error al actualizar estado', 'error');
+      this.toastService.show('Error al actualizar estado', 'error');
     }
   }
 

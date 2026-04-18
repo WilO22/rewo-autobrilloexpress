@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet, RouterModule, Router } from '@angular/router';
 import { BottomNav } from '../bottom-nav/bottom-nav';
-import { BranchService } from '../../services/branch';
-import { AuthService } from '../../services/auth';
+import { Branches } from '../../services/branch';
+import { Identity } from '../../services/auth';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -12,9 +12,9 @@ import { CommonModule } from '@angular/common';
   templateUrl: './main-layout.html',
 })
 export class MainLayout implements OnInit {
-  public branchService = inject(BranchService);
+  public branchService = inject(Branches);
   private router = inject(Router);
-  public authService = inject(AuthService);
+  public authService = inject(Identity);
 
   isDropdownOpen = signal(false);
 

@@ -18,7 +18,7 @@ export interface UserProfile {
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class Users {
   private firestore = inject(Firestore);
   private secondaryAuth: Auth;
 

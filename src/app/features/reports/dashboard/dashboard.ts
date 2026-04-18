@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { ReportService } from '../../../core/services/report';
+import { Reports } from '../../../core/services/report';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,7 +10,7 @@ import { ReportService } from '../../../core/services/report';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Dashboard {
-  public reportService = inject(ReportService);
+  public reportService = inject(Reports);
 
   /** Signal con los KPIs calculados */
   kpis = this.reportService.globalKpis;

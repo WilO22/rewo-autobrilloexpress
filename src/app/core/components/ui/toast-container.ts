@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ToastService } from '../../services/ui/toast';
+import { Toasts } from '../../services/ui/toast';
 import { ToastItem } from './toast-item';
 
 @Component({
@@ -22,5 +22,5 @@ import { ToastItem } from './toast-item';
   `]
 })
 export class ToastContainer {
-  protected toastService = inject(ToastService);
+  protected toastService = inject(Toasts);
 }

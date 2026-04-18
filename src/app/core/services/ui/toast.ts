@@ -12,7 +12,7 @@ export interface Toast {
 @Injectable({
   providedIn: 'root'
 })
-export class ToastService {
+export class Toasts {
   /** Estado reactivo de los toasts activos */
   private toastsSignal = signal<Toast[]>([]);
   

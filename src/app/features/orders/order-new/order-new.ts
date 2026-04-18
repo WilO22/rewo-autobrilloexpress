@@ -2,11 +2,11 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Timestamp } from '@angular/fire/firestore';
-import { ServicePackageService } from '../../../core/services/service-package';
-import { CustomerService } from '../../../core/services/customer';
-import { MembershipService } from '../../../core/services/membership';
-import { OrderService } from '../../../core/services/order';
-import { BranchService } from '../../../core/services/branch';
+import { ServicePackages } from '../../../core/services/service-package';
+import { Customers } from '../../../core/services/customer';
+import { Memberships } from '../../../core/services/membership';
+import { Orders } from '../../../core/services/order';
+import { Branches } from '../../../core/services/branch';
 import { ServicePackage, Customer, Membership } from '../../../core/models';
 
 import { CurrencyPipe, CommonModule } from '@angular/common';
@@ -20,11 +20,11 @@ import { CurrencyPipe, CommonModule } from '@angular/common';
 })
 export class OrderNew {
   private router = inject(Router);
-  private orderService = inject(OrderService);
-  private branchService = inject(BranchService);
-  private packageService = inject(ServicePackageService);
-  private customerService = inject(CustomerService);
-  private membershipService = inject(MembershipService);
+  private orderService = inject(Orders);
+  private branchService = inject(Branches);
+  private packageService = inject(ServicePackages);
+  private customerService = inject(Customers);
+  private membershipService = inject(Memberships);
 
   /** Catálogo de datos reactivos */
   packages = toSignal(this.packageService.getPackages(), { initialValue: [] as ServicePackage[] });

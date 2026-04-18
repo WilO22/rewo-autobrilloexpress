@@ -9,7 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 @Injectable({
   providedIn: 'root'
 })
-export class BranchService {
+export class Branches {
   private firestore = inject(Firestore);
   
   public activeBranchId = signal<string | null>(null);
