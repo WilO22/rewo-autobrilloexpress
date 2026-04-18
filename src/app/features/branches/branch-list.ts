@@ -74,6 +74,23 @@ export class BranchList {
     }
   }
 
+  async deleteBranch(id: string, name: string) {
+    if (!confirm(`¿Estás seguro de que deseas cerrar la sede "${name}"? Esta acción ocultará la sede pero mantendrá su historial.`)) {
+      return;
+    }
+
+    try {
+      this.loading.set(true);
+      await this.branchService.deleteBranch(id);
+      this.toast.show('Sede archivada correctamente', 'success');
+    } catch (error: any) {
+      console.error('Error al archivar sede:', error);
+      this.toast.show('Error al procesar la solicitud', 'error');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   getManagerName(managerId: string): string {
     const manager = this.managers().find(m => m.uid === managerId);
     return manager ? manager.name : 'Sin Asignar';

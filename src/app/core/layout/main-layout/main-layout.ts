@@ -19,7 +19,6 @@ export class MainLayout implements OnInit {
   isDropdownOpen = signal(false);
 
   ngOnInit() {
-    this.branchService.loadBranches();
   }
 
   getBranchName(id: string | null | undefined): string {
