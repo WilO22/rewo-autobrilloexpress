@@ -1,105 +1,171 @@
-<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-  
+<div class="space-y-6 animate-in fade-in duration-500">
   <!-- Header con acciones -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h2 class="text-3xl font-bold text-white tracking-tight">Inventario de Sede</h2>
-      <p class="text-gray-400 mt-1">Monitoreo de insumos de limpieza y químicos en tiempo real.</p>
+      <h2 class="text-3xl font-bold text-white tracking-tight">Inventario & Stock</h2>
+      <p class="text-gray-400 mt-1">Gestión de insumos y químicos del sistema.</p>
     </div>
     
-    <div class="flex items-center gap-3">
-      <button class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all flex items-center gap-2 cursor-pointer">
-        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        Descargar Reporte
-      </button>
+    <button 
+      *ngIf="authService.userRole() === 'SUPER_ADMIN'"
+      (click)="openModal()"
+      class="flex items-center justify-center gap-2 px-6 py-3 bg-cian text-navy font-bold rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.3)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+      Nuevo Producto
+    </button>
+  </div>
+
+  <!-- Vista CEO / Contexto de Sede -->
+  <div *ngIf="authService.userRole() === 'SUPER_ADMIN'" class="p-4 bg-cian/10 border border-cian/20 rounded-2xl flex items-start gap-4">
+    <div class="p-2 bg-cian/20 rounded-lg text-cian text-sm font-bold">
+      {{ !branchService.activeBranchId() ? 'GLOBAL' : 'SEDE' }}
+    </div>
+    <div>
+      <h3 class="font-bold text-white">
+        {{ !branchService.activeBranchId() ? 'Vista Global Activada' : 'Filtrando por: ' + getBranchName(branchService.activeBranchId()) }}
+      </h3>
+      <p class="text-sm text-gray-400">
+        {{ !branchService.activeBranchId() ? 'Estás viendo el stock consolidado de todas las sucursales.' : 'Estás viendo únicamente los insumos registrados en esta sucursal.' }}
+      </p>
     </div>
   </div>
 
-  <!-- Resumen de Métricas -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="p-6 rounded-2xl bg-navy/40 backdrop-blur-xl border border-white/5 shadow-xl">
-      <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Productos Totales</p>
-      <div class="mt-2 flex items-baseline gap-2">
-        <span class="text-3xl font-bold text-white">{{ items().length }}</span>
-        <span class="text-xs text-cian font-medium">SKUs activos</span>
+  <!-- Grid de Items -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let item of items()" 
+         class="group bg-navy/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:border-cian/40 transition-all hover:translate-y-[-4px] shadow-lg overflow-hidden relative"
+    >
+      <!-- Decoración de fondo -->
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-cian/5 rounded-full blur-3xl group-hover:bg-cian/10 transition-colors"></div>
+
+      <div class="flex items-start justify-between relative z-10">
+        <div class="space-y-1">
+          <span *ngIf="authService.userRole() === 'SUPER_ADMIN'" class="text-[10px] font-bold text-cian uppercase tracking-widest bg-cian/10 px-2 py-0.5 rounded flex items-center gap-1 w-fit mb-2">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            {{ getBranchName(item.branchId) }}
+          </span>
+          <h3 class="text-xl font-bold text-white group-hover:text-cian transition-colors">{{ item.name }}</h3>
+          <p class="text-sm text-gray-500 capitalize">Unidad: {{ item.unit }}</p>
+        </div>
+        
+        <div *ngIf="authService.userRole() === 'SUPER_ADMIN'" class="flex gap-1">
+          <button 
+            (click)="openModal(item)"
+            class="p-2 text-gray-500 hover:text-cian hover:bg-cian/10 rounded-lg transition-all cursor-pointer"
+            title="Editar producto"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+          </button>
+          <button 
+            (click)="requestDelete(item.id)"
+            class="p-2 text-gray-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer"
+            title="Eliminar producto"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-end justify-between relative z-10">
+        <div class="space-y-1">
+          <p class="text-xs text-gray-400 uppercase tracking-tighter">Stock Actual</p>
+          <div class="flex items-baseline gap-1">
+            <span class="text-4xl font-black tracking-tighter" [class.text-rose-500]="item.stock <= 0" [class.text-white]="item.stock > 0">
+              {{ item.stock }}
+            </span>
+            <span class="text-sm text-gray-500 ml-1">{{ item.unit }}</span>
+          </div>
+        </div>
+        
+        <div class="px-3 py-1.5 rounded-lg border text-xs font-bold uppercase tracking-widest transition-all" [ngClass]="getStatusClass(item.stock, item.minStock)">
+          {{ item.stock <= 0 ? 'Agotado' : (item.stock <= item.minStock ? 'Crítico' : 'Normal') }}
+        </div>
+      </div>
+
+      <!-- Barra de progreso visual -->
+      <div class="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden relative z-10">
+        <div class="h-full transition-all duration-1000" 
+             [style.width.%]="(item.stock / (item.minStock * 4)) * 100"
+             [class.bg-rose-500]="item.stock <= 0"
+             [class.bg-amber-500]="item.stock > 0 && item.stock <= item.minStock"
+             [class.bg-cian]="item.stock > item.minStock">
+        </div>
       </div>
     </div>
+
+    <!-- Empty State -->
+    <div *ngIf="items().length === 0" class="col-span-full py-20 bg-navy/20 border border-white/5 rounded-3xl flex flex-col items-center gap-4 text-gray-500">
+      <svg class="w-16 h-16 opacity-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+      <p>No hay insumos registrados en el sistema.</p>
+    </div>
+  </div>
+
+  <!-- Modal de Creación (CEO ONLY) -->
+  <div *ngIf="isModalOpen()" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div (click)="closeModal()" class="absolute inset-0 bg-navy/80 backdrop-blur-sm animate-in fade-in duration-300"></div>
     
-    <div class="p-6 rounded-2xl bg-navy/40 backdrop-blur-xl border border-white/5 shadow-xl">
-      <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Alertas de Stock</p>
-      <div class="mt-2 flex items-baseline gap-2">
-        <span class="text-3xl font-bold text-amber-500">0</span>
-        <span class="text-xs text-gray-500 font-medium">requieren atención</span>
-      </div>
-    </div>
+    <div class="relative w-full max-w-md bg-navy border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in slide-in-from-bottom duration-300">
+      <div class="p-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-bold text-white">
+            {{ isEditing() ? 'Editar Producto' : 'Nuevo Producto' }}
+          </h2>
+          <button (click)="closeModal()" class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l18 18"></path></svg>
+          </button>
+        </div>
 
-    <div class="p-6 rounded-2xl bg-navy/40 backdrop-blur-xl border border-white/5 shadow-xl">
-      <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Stock Crítico</p>
-      <div class="mt-2 flex items-baseline gap-2">
-        <span class="text-3xl font-bold text-rose-500">0</span>
-        <span class="text-xs text-gray-500 font-medium">sin existencia</span>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-1.5">Nombre del Producto</label>
+            <input type="text" [(ngModel)]="newItem().name" placeholder="Ej: Shampoo Arctic Foamer" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-cian transition-all">
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-1.5">Stock Inicial</label>
+              <input type="number" [(ngModel)]="newItem().stock" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-1.5">Mínimo Alerta</label>
+              <input type="number" [(ngModel)]="newItem().minStock" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-1.5">Unidad</label>
+              <select [(ngModel)]="newItem().unit" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:bg-navy">
+                <option value="litro" class="bg-navy text-white">Litro(s)</option>
+                <option value="unidad" class="bg-navy text-white">Unidad(es)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-1.5">Sede Destino</label>
+              <select [(ngModel)]="newItem().branchId" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:bg-navy">
+                <option *ngFor="let b of branchService.branches()" [value]="b.id" class="bg-navy text-white">{{ b.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 flex gap-3">
+          <button (click)="closeModal()" class="flex-1 px-6 py-3 border border-white/10 text-gray-400 font-bold rounded-xl hover:bg-white/5 transition-all cursor-pointer">Cancelar</button>
+          <button (click)="saveItem()" [disabled]="!newItem().name || !newItem().branchId" class="flex-1 px-6 py-3 bg-cian text-navy font-bold rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] disabled:opacity-50 hover:scale-105 active:scale-95 transition-all cursor-pointer">Guardar</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Tabla de Inventario -->
-  <div class="rounded-2xl bg-navy/60 backdrop-blur-2xl border border-cian/10 overflow-hidden shadow-2xl">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-white/5 border-b border-white/10">
-          <tr>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-widest">Producto</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-widest text-center">Referencia Stock</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-widest text-center">Cantidad Actual</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-widest">Unidad</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-widest text-right">Estado</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-white/5">
-          <tr *ngFor="let item of items()" class="hover:bg-white/5 transition-colors group">
-            <td class="px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-cian/10 flex items-center justify-center text-cian group-hover:scale-110 transition-transform">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                </div>
-                <div>
-                  <div class="text-sm font-bold text-white">{{ item.name }}</div>
-                  <div class="text-xs text-gray-500">ID: {{ item.id }}</div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-5 text-center">
-              <span class="text-sm text-gray-400">Min: {{ item.minStock }}</span>
-            </td>
-            <td class="px-6 py-5 text-center">
-              <span class="text-lg font-mono font-bold" [ngClass]="isLowStock(item.stock, item.minStock) ? 'text-rose-400' : 'text-white' ">
-                {{ item.stock }}
-              </span>
-            </td>
-            <td class="px-6 py-5">
-              <span class="text-xs font-medium px-2 py-1 rounded bg-white/5 text-gray-400 uppercase tracking-tighter">
-                {{ item.unit }}
-              </span>
-            </td>
-            <td class="px-6 py-5 text-right">
-              <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border"
-                    [ngClass]="getStatusClass(item.stock, item.minStock)">
-                {{ item.stock <= 0 ? 'Agotado' : (item.stock <= item.minStock ? 'Bajo' : 'Optimo') }}
-              </span>
-            </td>
-          </tr>
-
-          <!-- Empty State -->
-          <tr *ngIf="items().length === 0">
-            <td colspan="5" class="px-6 py-20 text-center">
-              <div class="flex flex-col items-center gap-3 text-gray-500">
-                <svg class="w-12 h-12 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                <span class="text-sm">No hay productos registrados en esta sede.</span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <!-- Modal de Confirmación (Eliminar) -->
+  <app-confirm-modal
+    *ngIf="isConfirmDialogOpen()"
+    title="Eliminar Producto"
+    message="¿Estás seguro de que deseás eliminar este producto? El stock y los registros asociados se perderán permanentemente."
+    confirmText="Sí, Eliminar"
+    cancelText="No, Mantener"
+    (onConfirm)="confirmDelete()"
+    (onCancel)="cancelDelete()"
+  ></app-confirm-modal>
 </div>

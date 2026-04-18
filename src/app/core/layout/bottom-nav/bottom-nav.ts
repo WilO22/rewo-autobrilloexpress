@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-bottom-nav',
@@ -7,4 +8,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './bottom-nav.html',
 })
-export class BottomNav {}
+export class BottomNav {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  async logout() {
+    await this.authService.logout();
+    this.router.navigate(['/']);
+  }
+}

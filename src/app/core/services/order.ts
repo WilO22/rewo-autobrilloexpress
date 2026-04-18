@@ -24,6 +24,13 @@ export class OrderService {
     return collectionData(q, { idField: 'id' }) as Observable<Order[]>;
   }
 
+  /** Todas las órdenes del sistema (Solo para SUPER_ADMIN) */
+  getGlobalOrders(maxResults = 200): Observable<Order[]> {
+    const ref = collection(this.firestore, 'orders');
+    const q = query(ref, limit(maxResults));
+    return collectionData(q, { idField: 'id' }) as Observable<Order[]>;
+  }
+
   /** Crear nueva orden/cita */
   async createOrder(data: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) {
     const ref = collection(this.firestore, 'orders');

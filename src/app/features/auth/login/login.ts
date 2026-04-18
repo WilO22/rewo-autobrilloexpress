@@ -1,15 +1,21 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
 })
 export class Login {
   private auth = inject(Auth);
   private router = inject(Router);
+
+  loading = signal(false);
+  errorMessage = signal('');
 
   async handleLogin(event: Event) {
     event.preventDefault();
@@ -17,11 +23,17 @@ export class Login {
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
 
+    this.loading.set(true);
+    this.errorMessage.set('');
+
     try {
       await signInWithEmailAndPassword(this.auth, email, password);
-      this.router.navigate(['/']);
+      // Al loguearse con éxito, vamos al área protegida del ERP
+      this.router.navigate(['/app']);
     } catch (err: any) {
-      alert(`Error al ingresar: ${err.message}`);
+      this.errorMessage.set('Credenciales inválidas. Verificá tu email y contraseña.');
+    } finally {
+      this.loading.set(false);
     }
   }
 }

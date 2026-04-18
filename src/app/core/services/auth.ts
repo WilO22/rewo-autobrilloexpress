@@ -1,8 +1,9 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { Auth, user, User } from '@angular/fire/auth';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { switchMap, of, map, Observable } from 'rxjs';
+import { BranchService } from './branch';
 
 export interface UserProfile {
   name: string;
@@ -17,6 +18,7 @@ export interface UserProfile {
 export class AuthService {
   private auth = inject(Auth);
   private firestore = inject(Firestore);
+  private branchService = inject(BranchService);
 
   /** Usuario base de Firebase Auth */
   user = toSignal(user(this.auth));
@@ -33,6 +35,19 @@ export class AuthService {
       })
     )
   );
+
+  constructor() {
+    /** 
+     * Sincronización Automática:
+     * Si el perfil tiene una branchId fija (Manager), forzamos esa sede en el sistema.
+     */
+    effect(() => {
+      const p = this.profile();
+      if (p?.branchId) {
+        this.branchService.setActiveBranch(p.branchId);
+      }
+    });
+  }
 
   /** RxJS Stream para servicios que necesiten pipes */
   get profile$() {

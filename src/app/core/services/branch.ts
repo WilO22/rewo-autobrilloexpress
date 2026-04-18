@@ -9,6 +9,7 @@ export class BranchService {
   private firestore = inject(Firestore);
   
   // Aislamiento Multi-tenant vía Signals
+  // null representa "Todas las Sedes" (Global)
   public activeBranchId = signal<string | null>(null);
   public branches = signal<Branch[]>([]);
 
@@ -19,13 +20,12 @@ export class BranchService {
     
     this.branches.set(loaded);
     
-    // Auto-seleccionar primera sucursal si no hay ninguna activa
-    if (loaded.length > 0 && !this.activeBranchId()) {
-      this.activeBranchId.set(loaded[0].id);
-    }
+    // NOTA: Para el CEO mantendremos null por defecto (Global).
+    // El auto-seleccionar la primera sede solo debería ocurrir si es estrictamente necesario
+    // o si el rol del usuario lo requiere (esto se maneja mejor desde los componentes).
   }
 
-  setActiveBranch(branchId: string) {
+  setActiveBranch(branchId: string | null) {
     this.activeBranchId.set(branchId);
   }
 }
