@@ -45,8 +45,17 @@ export class UserService {
 
   /** Solo Managers en tiempo real */
   getManagers(): Observable<UserProfile[]> {
+    return this.getStaffByRoles(['MANAGER']);
+  }
+
+  /** Obtiene personal calificado por roles (Filtro jerárquico) */
+  getStaffByRoles(roles: string[]): Observable<UserProfile[]> {
     const ref = collection(this.firestore, 'users');
-    const q = query(ref, where('role', '==', 'MANAGER'), where('active', '==', true));
+    const q = query(
+      ref, 
+      where('role', 'in', roles), 
+      where('active', '==', true)
+    );
     return collectionData(q, { idField: 'uid' }) as Observable<UserProfile[]>;
   }
 

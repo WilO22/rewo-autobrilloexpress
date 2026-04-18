@@ -79,7 +79,7 @@
               <option value="" disabled class="bg-gray-900 text-gray-500">Seleccionar un Responsable...</option>
               @for (m of managers(); track m.uid) {
                 <option [value]="m.uid" class="bg-gray-900 text-white">
-                  {{ m.name }} ({{ m.email }})
+                  {{ m.name }} - {{ m.role }} ({{ m.email }})
                 </option>
               }
             </select>

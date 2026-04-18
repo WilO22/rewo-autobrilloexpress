@@ -21,7 +21,7 @@ export class BranchList {
 
   // Estados reactivos
   branches = this.branchService.branches;
-  managers = toSignal(this.userService.getManagers(), { initialValue: [] as UserProfile[] });
+  managers = toSignal(this.userService.getStaffByRoles(['MANAGER', 'SUPER_ADMIN']), { initialValue: [] as UserProfile[] });
   
   loading = signal(false);
   showModal = signal(false);
