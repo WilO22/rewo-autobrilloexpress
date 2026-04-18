@@ -74,15 +74,17 @@ export class BranchList {
     }
   }
 
-  async deleteBranch(id: string, name: string) {
-    if (!confirm(`¿Estás seguro de que deseas cerrar la sede "${name}"? Esta acción ocultará la sede pero mantendrá su historial.`)) {
-      return;
-    }
+  /** Manejo del borrado lógico (archivado) de sedes */
+  async onDeleteBranch(branch: Branch) {
+    const confirmation = confirm(`¿Estás seguro de que deseas cerrar la sede "${branch.name}"? 
+Esta acción ocultará la sede pero mantendrá su historial íntegro.`);
+
+    if (!confirmation) return;
 
     try {
       this.loading.set(true);
-      await this.branchService.deleteBranch(id);
-      this.toast.show('Sede archivada correctamente', 'success');
+      await this.branchService.deleteBranch(branch.id);
+      this.toast.show(`Sede "${branch.name}" archivada correctamente`, 'success');
     } catch (error: any) {
       console.error('Error al archivar sede:', error);
       this.toast.show('Error al procesar la solicitud', 'error');
