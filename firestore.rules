@@ -1,18 +1,72 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2026, 5, 18);
+    
+    // --- HELPERS GLOBALES ---
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && getUserData().role == 'ADMIN';
+    }
+
+    function isManagerOfBranch(branchId) {
+      return isAuthenticated() && 
+             (getUserData().role == 'MANAGER' && getUserData().branchId == branchId) || 
+             isSuperAdmin();
+    }
+
+    function belongsToBranch(branchId) {
+      return isAuthenticated() && getUserData().branchId == branchId;
+    }
+
+    // --- REGLAS POR COLECCIÓN ---
+
+    // Perfiles de Usuario: Solo el propio usuario lee, solo SuperAdmin escribe roles
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
+      allow update: if isAuthenticated() && (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'branchId'])) || isSuperAdmin();
+      allow create: if isSuperAdmin();
+    }
+
+    // Sucursales: Lectura pública (para selección inicial), escritura solo SuperAdmin
+    match /branches/{branchId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // Órdenes: Aislamiento estricto por sucursal
+    match /orders/{orderId} {
+      // Lectura por cliente (placa) o por equipo de la sucursal
+      allow get: if true; // Permitir tracking público por ID exacto
+      allow list: if belongsToBranch(resource.data.branchId);
+      
+      allow create: if isAuthenticated() && 
+                    request.resource.data.branchId == getUserData().branchId &&
+                    request.resource.data.keys().hasAll(['plate', 'status', 'branchId', 'createdAt']);
+      
+      allow update: if belongsToBranch(resource.data.branchId) && 
+                    !request.resource.data.diff(resource.data).affectedKeys().hasAny(['branchId', 'createdAt']);
+    }
+
+    // Inventario: Solo Managers de la sucursal o SuperAdmin
+    match /inventory/{itemId} {
+      allow read: if belongsToBranch(resource.data.branchId);
+      allow write: if isManagerOfBranch(request.resource.data.branchId);
+    }
+
+    // Clientes: Registro público, lectura para personal de la sucursal
+    match /customers/{customerId} {
+      allow read: if isAuthenticated();
+      allow create: if true; // Registro abierto
+      allow update, delete: if isSuperAdmin();
     }
   }
 }
