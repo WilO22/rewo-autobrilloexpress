@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "serve:ssr:autobrillo-express": "node dist/autobrillo-express/server/server.mjs"
   },
   "private": true,
   "packageManager": "pnpm@10.21.0",
@@ -17,7 +18,10 @@
     "@angular/fire": "^20.0.1",
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
+    "@angular/platform-server": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@angular/ssr": "^21.2.7",
+    "express": "^5.1.0",
     "firebase": "^12.12.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
@@ -27,6 +31,8 @@
     "@angular/cli": "^21.2.7",
     "@angular/compiler-cli": "^21.2.0",
     "@tailwindcss/postcss": "^4.2.2",
+    "@types/express": "^5.0.1",
+    "@types/node": "^20.17.19",
     "jsdom": "^28.0.0",
     "postcss": "^8.5.10",
     "prettier": "^3.8.1",
