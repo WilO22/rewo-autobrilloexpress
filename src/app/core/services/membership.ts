@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { 
   Firestore, collection, query, orderBy, 
-  doc, docData, collectionData 
+  doc, docData, collectionData, addDoc, updateDoc, deleteDoc 
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Membership } from '../models';
@@ -27,5 +27,29 @@ export class MembershipService {
   getMembership(id: string): Observable<Membership | undefined> {
     const ref = doc(this.firestore, `memberships/${id}`);
     return docData(ref, { idField: 'id' }) as Observable<Membership | undefined>;
+  }
+
+  /**
+   * Crea una nueva membresía.
+   */
+  async addMembership(membership: Omit<Membership, 'id'>) {
+    const ref = collection(this.firestore, 'memberships');
+    return addDoc(ref, membership);
+  }
+
+  /**
+   * Actualiza una membresía existente.
+   */
+  async updateMembership(id: string, membership: Partial<Membership>) {
+    const ref = doc(this.firestore, `memberships/${id}`);
+    return updateDoc(ref, membership);
+  }
+
+  /**
+   * Elimina una membresía.
+   */
+  async deleteMembership(id: string) {
+    const ref = doc(this.firestore, `memberships/${id}`);
+    return deleteDoc(ref);
   }
 }

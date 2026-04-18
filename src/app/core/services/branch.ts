@@ -1,5 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+import { 
+  Firestore, collection, getDocs, addDoc, updateDoc, doc, serverTimestamp 
+} from '@angular/fire/firestore';
 import { Branch } from '../models';
 
 @Injectable({
@@ -8,8 +10,6 @@ import { Branch } from '../models';
 export class BranchService {
   private firestore = inject(Firestore);
   
-  // Aislamiento Multi-tenant vía Signals
-  // null representa "Todas las Sedes" (Global)
   public activeBranchId = signal<string | null>(null);
   public branches = signal<Branch[]>([]);
 
@@ -17,15 +17,31 @@ export class BranchService {
     const branchesRef = collection(this.firestore, 'branches');
     const snapshot = await getDocs(branchesRef);
     const loaded = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Branch));
-    
     this.branches.set(loaded);
-    
-    // NOTA: Para el CEO mantendremos null por defecto (Global).
-    // El auto-seleccionar la primera sede solo debería ocurrir si es estrictamente necesario
-    // o si el rol del usuario lo requiere (esto se maneja mejor desde los componentes).
+  }
+
+  async createBranch(data: Omit<Branch, 'id'>) {
+    const ref = collection(this.firestore, 'branches');
+    const res = await addDoc(ref, {
+      ...data,
+      createdAt: serverTimestamp()
+    });
+    await this.loadBranches(); // Refrescar lista global
+    return res;
+  }
+
+  async updateBranch(id: string, data: Partial<Branch>) {
+    const ref = doc(this.firestore, `branches/${id}`);
+    const res = await updateDoc(ref, {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+    await this.loadBranches(); // Refrescar lista global
+    return res;
   }
 
   setActiveBranch(branchId: string | null) {
     this.activeBranchId.set(branchId);
   }
 }
+

@@ -23,6 +23,9 @@ export class AuthService {
   /** Usuario base de Firebase Auth */
   user = toSignal(user(this.auth));
 
+  /** Indica si Firebase terminó de chequear la sesión inicial */
+  isInitialLoading = signal(true);
+
   /** Perfil extendido desde Firestore */
   profile = toSignal(
     user(this.auth).pipe(
@@ -37,6 +40,12 @@ export class AuthService {
   );
 
   constructor() {
+    /** Detectar fin de carga inicial de auth */
+    const userSub = user(this.auth).subscribe(() => {
+      this.isInitialLoading.set(false);
+      userSub.unsubscribe();
+    });
+
     /** 
      * Sincronización Automática:
      * Si el perfil tiene una branchId fija (Manager), forzamos esa sede en el sistema.

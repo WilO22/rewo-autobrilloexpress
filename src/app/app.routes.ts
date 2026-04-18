@@ -26,8 +26,27 @@ export const routes: Routes = [
       },
       { path: 'clientes', loadComponent: () => import('./features/customers/customer-list/customer-list').then(m => m.CustomerList) },
       { path: 'clientes/nuevo', loadComponent: () => import('./features/customers/customer-new/customer-new').then(m => m.CustomerNew) },
+      { path: 'clientes/:id', loadComponent: () => import('./features/customers/customer-detail/customer-detail').then(m => m.CustomerDetail) },
+      { 
+        path: 'sedes', 
+        canActivate: [() => import('./core/guards/role.guard').then(m => m.roleGuard)],
+        data: { role: 'SUPER_ADMIN' },
+        loadComponent: () => import('./features/branches/branch-list').then(m => m.BranchList) 
+      },
+      { 
+        path: 'equipo', 
+        canActivate: [() => import('./core/guards/role.guard').then(m => m.roleGuard)],
+        data: { role: 'SUPER_ADMIN' },
+        loadComponent: () => import('./features/team/team-list').then(m => m.TeamList) 
+      },
       { path: 'membresias', loadComponent: () => import('./features/memberships/membership-list/membership-list').then(m => m.MembershipList) },
-      { path: 'inventario', loadComponent: () => import('./features/inventory/inventory-list').then(m => m.InventoryList) }
+      { path: 'inventario', loadComponent: () => import('./features/inventory/inventory-list').then(m => m.InventoryList) },
+      {
+        path: 'marketing',
+        canActivate: [() => import('./core/guards/role.guard').then(m => m.roleGuard)],
+        data: { role: 'SUPER_ADMIN' },
+        loadComponent: () => import('./features/marketing/marketing-list').then(m => m.MarketingListComponent)
+      }
     ]
   },
   { path: '**', redirectTo: '' }
