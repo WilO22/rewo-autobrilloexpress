@@ -1,16 +1,16 @@
 <div class="h-full flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
   
   <!-- Header Estratégico -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-900/40 p-8 rounded-3xl border border-cyan-500/20 backdrop-blur-xl">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-gray-900/40 p-8 rounded-3xl border border-app-accent/20 backdrop-blur-xl">
     <div>
       <h1 class="text-3xl font-bold text-white tracking-tight">Control Regional de Sedes</h1>
-      <p class="text-cyan-400/70 text-sm mt-1">Gestión de infraestructura y asignación de Managers</p>
+      <p class="text-app-accent/70 text-sm mt-1">Gestión de infraestructura y asignación de Managers</p>
     </div>
     
     <div class="flex items-center gap-4">
       <!-- Toggle de Archivados -->
       <button (click)="showArchived.set(!showArchived())" 
-              [class]="showArchived() ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' : 'bg-gray-800/50 text-gray-500 border-gray-700'"
+              [class]="showArchived() ? 'bg-app-accent/20 text-app-accent border-app-accent/30' : 'bg-gray-800/50 text-gray-500 border-gray-700'"
               class="flex items-center gap-2 px-6 py-3 rounded-2xl border text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -19,7 +19,7 @@
       </button>
 
       <button (click)="openCreateModal()"
-              class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-black px-8 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-[0_0_30px_rgba(34,211,238,0.2)]">
+              class="bg-app-accent hover:opacity-90 text-gray-900 font-black px-8 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-[0_0_30px_var(--app-glow)]">
         + Abrir Nueva Sede
       </button>
     </div>
@@ -28,29 +28,34 @@
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
     @for (branch of branches(); track branch.id) {
       <div [class.opacity-50]="showArchived()" [class.grayscale]="showArchived()"
-           class="bg-gray-900/50 rounded-3xl p-8 border border-white/5 backdrop-blur-md relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-        <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-[50px] pointer-events-none"></div>
+           [style.border-color]="branch.theme?.primary ? branch.theme?.primary + '33' : null"
+           class="bg-gray-900/50 rounded-3xl p-8 border border-white/5 backdrop-blur-md relative overflow-hidden group hover:border-app-accent/30 transition-all">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-app-accent/5 rounded-full blur-[50px] pointer-events-none"
+             [style.background-color]="branch.theme?.primary ? branch.theme?.primary + '1a' : null"></div>
         
         <div class="flex justify-between items-start mb-6">
-          <div class="w-14 h-14 rounded-2xl bg-cyan-900/40 flex items-center justify-center text-cyan-400 border border-cyan-500/20">
+          <div class="w-14 h-14 rounded-2xl bg-app-accent/10 flex items-center justify-center text-app-accent border border-app-accent/20 group-hover:shadow-[0_0_20px_var(--app-glow)] transition-all"
+               [style.background-color]="branch.theme?.primary ? branch.theme?.primary + '1a' : null"
+               [style.color]="branch.theme?.primary || '#22d3ee'"
+               [style.border-color]="branch.theme?.primary ? branch.theme?.primary + '33' : null">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
           </div>
           <div class="flex gap-2">
             @if (!showArchived()) {
-              <button (click)="openEditModal(branch)" class="text-gray-500 hover:text-cyan-400 transition-colors" title="Editar Sede">
+              <button (click)="openEditModal(branch)" class="text-gray-500 hover:text-app-accent transition-colors" title="Editar Sede">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
-              <button (click)="onDeleteBranch(branch)" class="text-gray-500 hover:text-red-400 transition-colors" title="Cerrar Sede">
+              <button (click)="onDeleteBranch(branch)" class="text-gray-500 hover:text-app-danger transition-colors" title="Cerrar Sede">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
             } @else {
-              <button (click)="onActivateBranch(branch)" class="flex items-center gap-2 bg-cyan-500/10 text-cyan-400 px-4 py-2 rounded-xl border border-cyan-500/20 hover:bg-cyan-500/20 transition-all text-[10px] font-black uppercase tracking-widest" title="Reactivar Sede">
+              <button (click)="onActivateBranch(branch)" class="flex items-center gap-2 bg-app-accent/10 text-app-accent px-4 py-2 rounded-xl border border-app-accent/20 hover:bg-app-accent/20 transition-all text-[10px] font-black uppercase tracking-widest" title="Reactivar Sede">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -62,7 +67,7 @@
 
         <h3 class="text-2xl font-black text-white mb-2 tracking-tight">{{ branch.name }}</h3>
         <p class="text-gray-400 text-sm flex items-center gap-2 mb-8">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-app-accent/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.828a2 2 0 01-2.828 0L6.343 16.657m11.314-11.314a4 4 0 00-5.656 0L10 8.343l-1.343-1.343a4 4 0 00-5.656 5.656L10 17.657l7.657-7.657a4 4 0 000-5.656z" />
           </svg>
           {{ branch.location }}
@@ -81,7 +86,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-sm animate-in fade-in duration-300">
       <div class="bg-gray-900 border border-white/10 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         
-        <div class="p-8 border-b border-white/5 bg-gradient-to-r from-cyan-500/5 to-transparent flex justify-between items-center">
+        <div class="p-8 border-b border-white/5 bg-gradient-to-r from-app-accent/5 to-transparent flex justify-between items-center">
           <h2 class="text-2xl font-black text-white tracking-tight">
             {{ modalMode() === 'edit' ? (editingBranch() ? 'Editar Sede' : 'Nueva Sucursal') : 'Confirmar Cierre' }}
           </h2>
@@ -95,19 +100,19 @@
             <div class="space-y-2">
               <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Nombre Comercial de la Sede</label>
               <input type="text" formControlName="name" placeholder="Ej: Sede Norte Industrial"
-                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-cyan-500 transition-all">
+                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-app-accent transition-all">
             </div>
 
             <div class="space-y-2">
               <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Dirección / Ubicación Física</label>
               <input type="text" formControlName="location" placeholder="Calle falsa 123, Ciudad"
-                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-cyan-500 transition-all">
+                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-app-accent transition-all">
             </div>
 
             <div class="space-y-2">
               <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Manager Responsable</label>
               <select formControlName="managerId"
-                      class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-cyan-500 appearance-none transition-all cursor-pointer">
+                      class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-app-accent appearance-none transition-all cursor-pointer">
                 <option value="" disabled class="bg-gray-900 text-gray-500">Seleccionar un Responsable...</option>
                 @for (m of managers(); track m.uid) {
                   <option [value]="m.uid" class="bg-gray-900 text-white">
@@ -117,13 +122,43 @@
               </select>
             </div>
 
+            <!-- Identidad Visual (Fase 3: Motor de Temas) -->
+            <div class="pt-4 space-y-4" formGroupName="theme">
+              <div class="flex items-center justify-between">
+                <label class="text-[10px] font-black text-app-accent uppercase tracking-widest">Identidad Visual (Color Coding)</label>
+                <div class="flex gap-1">
+                  <div [style.background-color]="branchForm.get('theme.primary')?.value" class="w-4 h-4 rounded-full shadow-lg"></div>
+                  <div [style.background-color]="branchForm.get('theme.secondary')?.value" class="w-4 h-4 rounded-full shadow-lg"></div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-800/30 p-4 rounded-2xl border border-white/5 space-y-3">
+                  <span class="text-[9px] font-bold text-gray-500 uppercase">Color Primario</span>
+                  <div class="flex items-center gap-3">
+                    <input type="color" formControlName="primary" 
+                           class="w-10 h-10 rounded-lg bg-transparent cursor-pointer border-0 p-0 overflow-hidden">
+                    <span class="text-[10px] font-mono text-gray-400">{{ branchForm.get('theme.primary')?.value }}</span>
+                  </div>
+                </div>
+                <div class="bg-gray-800/30 p-4 rounded-2xl border border-white/5 space-y-3">
+                  <span class="text-[9px] font-bold text-gray-500 uppercase">Color Secundario</span>
+                  <div class="flex items-center gap-3">
+                    <input type="color" formControlName="secondary" 
+                           class="w-10 h-10 rounded-lg bg-transparent cursor-pointer border-0 p-0 overflow-hidden">
+                    <span class="text-[10px] font-mono text-gray-400">{{ branchForm.get('theme.secondary')?.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="pt-6 flex gap-4">
               <button type="button" (click)="showModal.set(false)"
                       class="flex-1 px-8 py-4 rounded-2xl border border-gray-800 text-gray-400 font-bold hover:bg-white/5 transition-all">
                 Cancelar
               </button>
               <button type="submit" [disabled]="branchForm.invalid || loading()"
-                      class="flex-1 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 font-black rounded-2xl px-8 py-4 transition-all shadow-[0_0_30px_rgba(34,211,238,0.2)]">
+                      class="flex-1 bg-app-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 font-black rounded-2xl px-8 py-4 transition-all shadow-[0_0_30px_var(--app-glow)]">
                 {{ loading() ? 'Procesando...' : (editingBranch() ? 'Guardar Cambios' : 'Confirmar Apertura') }}
               </button>
             </div>
@@ -132,7 +167,7 @@
           <!-- Modo Confirmación de Borrado -->
           <div class="p-8 space-y-6">
             <div class="flex flex-col items-center text-center space-y-4">
-              <div class="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 mb-2">
+              <div class="w-20 h-20 rounded-full bg-app-danger/10 flex items-center justify-center text-app-danger border border-app-danger/20 mb-2">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                 </svg>
@@ -150,7 +185,7 @@
                 No, volver
               </button>
               <button type="button" (click)="confirmDelete()" [disabled]="loading()"
-                      class="flex-1 bg-red-500 hover:bg-red-400 disabled:opacity-50 text-white font-black rounded-2xl px-8 py-4 transition-all shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                      class="flex-1 bg-app-danger hover:opacity-90 disabled:opacity-50 text-white font-black rounded-2xl px-8 py-4 transition-all shadow-[0_0_30px_rgba(var(--app-danger-rgb),0.2)]">
                 {{ loading() ? 'Procesando...' : 'Sí, cerrar sede' }}
               </button>
             </div>

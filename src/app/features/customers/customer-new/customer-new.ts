@@ -5,7 +5,6 @@ import { Customers } from '../../../core/services/customer';
 
 @Component({
   selector: 'app-customer-new',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './customer-new.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

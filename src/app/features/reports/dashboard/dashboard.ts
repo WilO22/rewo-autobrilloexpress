@@ -4,7 +4,6 @@ import { Reports } from '../../../core/services/report';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [CommonModule, CurrencyPipe],
   templateUrl: './dashboard.html',
   changeDetection: ChangeDetectionStrategy.OnPush

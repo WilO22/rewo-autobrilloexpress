@@ -10,7 +10,6 @@ import { Spinner } from '../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-team-list',
-  standalone: true,
   imports: [CommonModule, ReactiveFormsModule, Spinner],
   templateUrl: './team-list.html'
 })

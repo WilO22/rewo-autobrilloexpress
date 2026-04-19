@@ -6,7 +6,6 @@ import { Membership } from '../../../core/models';
 
 @Component({
   selector: 'app-membership-list',
-  standalone: true,
   imports: [CurrencyPipe],
   templateUrl: './membership-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,7 +24,25 @@ export class MembershipList {
    */
   getTypeBadgeClass(type: string): string {
     return type === 'ILIMITADO' 
-      ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.2)]' 
-      : 'bg-purple-500/10 text-purple-400 border-purple-500/30';
+      ? 'bg-app-accent/10 text-app-accent border-app-accent/30 shadow-[0_0_10px_var(--app-glow)]' 
+      : 'bg-app-secondary/10 text-app-secondary border-app-secondary/30 shadow-[0_0_10px_var(--app-secondary-glow)]';
+  }
+
+  /**
+   * Estilos dinámicos para la tarjeta
+   */
+  getCardClass(type: string): string {
+    return type === 'ILIMITADO'
+      ? 'hover:border-app-accent/40 hover:shadow-[0_0_30px_var(--app-glow)]'
+      : 'hover:border-app-secondary/40 hover:shadow-[0_0_30px_var(--app-secondary-glow)]';
+  }
+
+  /**
+   * Colores de brillo de fondo
+   */
+  getGlowClass(type: string): string {
+    return type === 'ILIMITADO'
+      ? 'bg-app-accent/5 group-hover:bg-app-accent/10'
+      : 'bg-app-secondary/5 group-hover:bg-app-secondary/10';
   }
 }

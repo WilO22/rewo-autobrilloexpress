@@ -6,7 +6,7 @@
         <a routerLink="/app/agenda" class="p-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
         </a>
-        <h2 class="text-3xl font-extrabold text-white tracking-tight">Nueva <span class="text-cian">Orden</span></h2>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">Nueva <span class="text-app-accent">Orden</span></h2>
       </div>
     </div>
 
@@ -16,22 +16,22 @@
         
         <!-- Paso 1: Cliente -->
         <section class="bg-navy/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
-          <div class="absolute top-0 left-0 w-1 h-full bg-app-accent group-hover:shadow-[0_0_15px_var(--app-glow)] transition-all"></div>
+          <div class="absolute top-0 left-0 w-1 h-full bg-app-secondary group-hover:shadow-[0_0_15px_var(--app-secondary-glow)] transition-all"></div>
           <div class="flex items-center gap-3 mb-6">
-            <div class="w-8 h-8 rounded-lg bg-app-accent/10 border border-app-accent/30 flex items-center justify-center text-app-accent text-sm font-bold">1</div>
+            <div class="w-8 h-8 rounded-lg bg-app-secondary/10 border border-app-secondary/30 flex items-center justify-center text-app-secondary text-sm font-bold">1</div>
             <h3 class="text-lg font-bold text-white">Seleccionar Cliente</h3>
           </div>
 
           <div class="space-y-4">
             <!-- Buscador Reactivo -->
             <div class="relative group/search">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within/search:text-app-accent transition-colors">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within/search:text-app-secondary transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               </span>
               <input type="text" 
                      (input)="onSearch($any($event.target).value)"
                      placeholder="Buscar por nombre o placa..."
-                     class="w-full bg-navy/60 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-white focus:border-app-accent/50 focus:ring-1 focus:ring-app-accent/50 outline-none transition-all placeholder:text-gray-600">
+                     class="w-full bg-navy/60 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-white focus:border-app-secondary/50 focus:ring-1 focus:ring-app-secondary/50 outline-none transition-all placeholder:text-gray-600">
             </div>
 
             <!-- Resultados de Búsqueda -->
@@ -46,14 +46,14 @@
                   <button (click)="selectCustomer(c)"
                           [class]="'flex items-center justify-between p-3 rounded-xl border transition-all ' + 
                                    (selectedCustomer()?.id === c.id 
-                                    ? 'bg-app-accent/10 border-app-accent shadow-[0_0_15px_var(--app-glow)]' 
+                                    ? 'bg-app-secondary/10 border-app-secondary shadow-[0_0_15px_var(--app-secondary-glow)]' 
                                     : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10')">
                     <div class="flex flex-col text-left">
                       <span class="text-sm font-bold text-white">{{ c.name }}</span>
                       <span class="text-[10px] text-gray-500 font-mono tracking-tighter uppercase">{{ c.email }}</span>
                     </div>
                     <div class="px-2 py-1 bg-navy/60 rounded-lg border border-white/10">
-                      <span class="text-xs font-black text-app-accent">{{ c.activePlate }}</span>
+                      <span class="text-xs font-black text-app-secondary">{{ c.activePlate }}</span>
                     </div>
                   </button>
                 } @empty {
@@ -174,8 +174,8 @@
 } @else {
   <!-- Pantalla de Bloqueo Estético (Empty State Senior) -->
   <div class="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-    <div class="w-24 h-24 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(245,158,11,0.1)]">
-      <svg class="w-12 h-12 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="w-24 h-24 rounded-3xl bg-app-warning/10 border border-app-warning/20 flex items-center justify-center mb-8 shadow-[0_0_50px_var(--app-glow)]">
+      <svg class="w-12 h-12 text-app-warning animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
       </svg>
     </div>
@@ -183,7 +183,7 @@
     <p class="text-gray-400 max-w-md mx-auto mb-8 font-medium">
       No podés crear una orden sin seleccionar una sede activa. Las órdenes deben pertenecer a un contexto operativo específico.
     </p>
-    <div class="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-amber-500 font-bold text-xs uppercase tracking-[0.2em]">
+    <div class="flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-app-warning font-bold text-xs uppercase tracking-[0.2em]">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
       Seleccioná una sede en el menú lateral
     </div>

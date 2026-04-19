@@ -7,10 +7,10 @@ import { UserProfile } from '../../core/models';
 import { Toasts } from '../../core/services/ui/toast';
 import { Branch } from '../../core/models';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Spinner } from '../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-branch-list',
-  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './branch-list.html'
 })
@@ -34,7 +34,11 @@ export class BranchList {
   branchForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
     location: ['', [Validators.required]],
-    managerId: ['', [Validators.required]]
+    managerId: ['', [Validators.required]],
+    theme: this.fb.group({
+      primary: ['#22d3ee'], // Por defecto: Cyan REWO
+      secondary: ['#6366f1'] // Por defecto: Indigo REWO
+    })
   });
 
   openCreateModal() {
@@ -50,7 +54,11 @@ export class BranchList {
     this.branchForm.patchValue({
       name: branch.name,
       location: branch.location,
-      managerId: branch.managerId
+      managerId: branch.managerId,
+      theme: {
+        primary: branch.theme?.primary || '#22d3ee',
+        secondary: branch.theme?.secondary || '#6366f1'
+      }
     });
     this.showModal.set(true);
   }

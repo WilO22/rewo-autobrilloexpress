@@ -14,7 +14,6 @@ import { Spinner } from '../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-marketing-list',
-  standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, Spinner],
   templateUrl: './marketing-list.html'
 })
@@ -27,33 +26,22 @@ export class MarketingList {
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
+  // FormGroups Reactivos (SOLID - Initialized via Field Injection)
+  public couponForm = this.fb.group({
+    code: ['', [Validators.required, Validators.minLength(3)]],
+    discount: [0, [Validators.required, Validators.min(0)]],
+    type: ['PERCENT', Validators.required],
+    isActive: [true]
+  });
+
+  public membershipForm = this.fb.group({
+    name: ['', Validators.required],
+    price: [0, [Validators.required, Validators.min(0)]],
+    type: ['ILIMITADO', Validators.required],
+    benefits: [[] as string[]]
+  });
+
   // Estado temporal para beneficios (UI)
-  public tempBenefit = signal('');
-  public currentBenefits = signal<string[]>([]);
-
-  // Estado de Navegación
-  activeTab = signal<'coupons' | 'memberships'>('coupons');
-  isLoading = signal(false);
-
-  // FormGroups Reactivos (SOLID)
-  public couponForm: FormGroup;
-  public membershipForm: FormGroup;
-
-  constructor() {
-    this.couponForm = this.fb.group({
-      code: ['', [Validators.required, Validators.minLength(3)]],
-      discount: [0, [Validators.required, Validators.min(0)]],
-      type: ['PERCENT', Validators.required],
-      isActive: [true]
-    });
-
-    this.membershipForm = this.fb.group({
-      name: ['', Validators.required],
-      price: [0, [Validators.required, Validators.min(0)]],
-      type: ['ILIMITADO', Validators.required],
-      benefits: [[]]
-    });
-  }
 
   // Data Signals
   coupons = toSignal(this.couponService.getCoupons(), { initialValue: [] });
@@ -71,6 +59,12 @@ export class MarketingList {
   modalMode = signal<'create' | 'edit'>('create');
   editingId = signal<string | null>(null);
   selectedMembershipId = signal<string | null>(null);
+  
+  // Missing UI Signals (Restored for Build)
+  activeTab = signal<'coupons' | 'memberships'>('coupons');
+  isLoading = signal(false);
+  tempBenefit = signal('');
+  currentBenefits = signal<string[]>([]);
 
   // Intelligence Analytics (Reactive)
   selectedMembership = computed(() => 
@@ -106,7 +100,8 @@ export class MarketingList {
     this.editingId.set(null);
     this.currentBenefits.set([]);
     this.couponForm.reset({ code: '', discount: 0, type: 'PERCENT', isActive: true });
-    this.membershipForm.reset({ name: '', price: 0, type: 'ILIMITADO', benefits: [] });
+    this.membershipForm.reset();
+    this.membershipForm.patchValue({ name: '', price: 0, type: 'ILIMITADO', benefits: [] });
     this.isModalOpen.set(true);
   }
 
@@ -154,22 +149,32 @@ export class MarketingList {
   }
 
   private async saveCoupon() {
-    const data = this.couponForm.value;
+    const val = this.couponForm.value;
+    const data: Partial<Coupon> = {
+      code: val.code ?? '',
+      discount: val.discount ?? 0,
+      type: (val.type as CouponType) ?? 'PERCENT',
+      isActive: val.isActive ?? true
+    };
+
     if (this.modalMode() === 'create') {
-      await this.couponService.addCoupon(data);
+      await this.couponService.addCoupon(data as Coupon);
     } else if (this.editingId()) {
       await this.couponService.updateCoupon(this.editingId()!, data);
     }
   }
 
   private async saveMembership() {
-    const data = {
-      ...this.membershipForm.value,
+    const val = this.membershipForm.value;
+    const data: Partial<Membership> = {
+      name: val.name ?? '',
+      price: val.price ?? 0,
+      type: (val.type as MembershipType) ?? 'ILIMITADO',
       benefits: this.currentBenefits()
     };
 
     if (this.modalMode() === 'create') {
-      await this.membershipService.addMembership(data);
+      await this.membershipService.addMembership(data as Membership);
     } else if (this.editingId()) {
       await this.membershipService.updateMembership(this.editingId()!, data);
     }

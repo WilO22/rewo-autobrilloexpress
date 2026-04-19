@@ -15,7 +15,6 @@ import { AppPaginator } from '../../../shared/components/paginator/paginator';
 
 @Component({
   selector: 'app-order-new',
-  standalone: true,
   imports: [RouterLink, CurrencyPipe, CommonModule, AppPaginator],
   templateUrl: './order-new.html',
   changeDetection: ChangeDetectionStrategy.OnPush

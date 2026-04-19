@@ -1,13 +1,13 @@
 <div class="h-full flex flex-col gap-6 animate-in fade-in duration-500">
   
   <!-- Header Estratégico -->
-  <div class="flex justify-between items-center bg-gray-900/40 p-8 rounded-3xl border border-cyan-500/20 backdrop-blur-xl">
+  <div class="flex justify-between items-center bg-gray-900/40 p-8 rounded-3xl border border-app-accent/20 backdrop-blur-xl">
     <div>
       <h1 class="text-3xl font-bold text-white tracking-tight">Gestión de Equipo Administrativo</h1>
-      <p class="text-cyan-400/70 text-sm mt-1">Control de accesos, roles y asignación de responsabilidades</p>
+      <p class="text-app-accent/70 text-sm mt-1">Control de accesos, roles y asignación de responsabilidades</p>
     </div>
     <button (click)="openCreateModal()"
-            class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-black px-8 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-[0_0_30px_rgba(34,211,238,0.2)]">
+            class="bg-app-accent hover:opacity-90 text-gray-900 font-black px-8 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-[0_0_30px_var(--app-glow)]">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
       </svg>
@@ -46,28 +46,28 @@
                 </div>
               </td>
               <td class="px-8 py-6">
-                <span [class]="member.role === 'SUPER_ADMIN' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'"
+                <span [class]="member.role === 'SUPER_ADMIN' ? 'bg-app-secondary/10 text-app-secondary border-app-secondary/20' : 'bg-app-accent/10 text-app-accent border-app-accent/20'"
                       class="px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-wider">
                   {{ member.role }}
                 </span>
               </td>
               <td class="px-8 py-6">
                 <div class="flex items-center gap-2 text-gray-300 text-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-cyan-500/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-app-accent/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   {{ member.branchName }}
                 </div>
               </td>
               <td class="px-8 py-6 text-center">
-                <span [class]="member.active ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20'"
+                <span [class]="member.active ? 'text-app-success bg-app-success/10 border-app-success/20' : 'text-app-danger bg-app-danger/10 border-app-danger/20'"
                       class="px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-wider">
                   {{ member.active ? 'Activo' : 'Suspendido' }}
                 </span>
               </td>
               <td class="px-8 py-6 text-right flex justify-end gap-2">
                 <button (click)="editUser(member)"
-                        class="text-gray-500 hover:text-cyan-400 transition-colors"
+                        class="text-gray-500 hover:text-app-accent transition-colors"
                         title="Editar perfil">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
@@ -77,7 +77,7 @@
                   @if (member.active) {
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
                   } @else {
-                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-5 h-5 text-app-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   }
                 </button>
               </td>
@@ -101,7 +101,7 @@
   @if (showModal()) {
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-sm animate-in fade-in duration-300">
       <div class="bg-gray-900 border border-white/10 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-        <div class="p-8 border-b border-white/5 bg-gradient-to-r from-cyan-500/5 to-transparent flex justify-between items-center">
+        <div class="p-8 border-b border-white/5 bg-gradient-to-r from-app-accent/5 to-transparent flex justify-between items-center">
           <h2 class="text-2xl font-black text-white tracking-tight text-shadow">
             {{ editingUser() ? 'Editar Perfil de Personal' : 'Alta de Nuevo Personal' }}
           </h2>
@@ -114,7 +114,7 @@
           <div class="space-y-1.5">
             <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Nombre Completo</label>
             <input type="text" formControlName="name" placeholder="Ej: Juan Pérez"
-                   class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-cyan-500 transition-all">
+                   class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-app-accent transition-all">
           </div>
 
           <div class="grid" [ngClass]="editingUser() ? 'grid-cols-1' : 'grid-cols-2 gap-4'">
@@ -122,19 +122,19 @@
               <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Correo Electrónico</label>
               <input type="email" formControlName="email" placeholder="email@autobrillo.com"
                      [class.opacity-50]="editingUser()"
-                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-cyan-500 transition-all">
+                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-app-accent transition-all">
             </div>
             <div class="space-y-1.5" *ngIf="!editingUser()">
               <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Password Provisional</label>
               <input type="password" formControlName="password" placeholder="******"
-                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-cyan-500 transition-all">
+                     class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-app-accent transition-all">
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1.5">
               <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Rol del Usuario</label>
-              <select formControlName="role" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-cyan-500 appearance-none">
+              <select formControlName="role" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-app-accent appearance-none">
                 <option value="MANAGER" class="bg-gray-900">Gerente (Sede)</option>
                 <option value="OPERATOR" class="bg-gray-900">Operador (Staff)</option>
                 <option value="SUPER_ADMIN" class="bg-gray-900">Super Admin (CEO)</option>
@@ -142,7 +142,7 @@
             </div>
             <div class="space-y-1.5">
               <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-1">Sede de Trabajo</label>
-                <select formControlName="branchId" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-cyan-500 appearance-none">
+                <select formControlName="branchId" class="w-full bg-gray-800/50 border border-gray-700/50 rounded-2xl px-5 py-3.5 text-white focus:outline-none focus:border-app-accent appearance-none">
                   <option value="" class="bg-gray-900">Sin asignar (Pendiente)</option>
                   <option value="all" *ngIf="userForm.get('role')?.value === 'SUPER_ADMIN'" class="bg-gray-900">Global (Acceso a todas)</option>
                   @for (b of branches(); track b.id) {
@@ -158,7 +158,7 @@
               Cerrar
             </button>
             <button type="submit" [disabled]="userForm.invalid || loading()"
-                    class="flex-1 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 font-black rounded-2xl px-8 py-4 transition-all shadow-[0_0_30px_rgba(34,211,238,0.2)] flex items-center justify-center gap-3">
+                    class="flex-1 bg-app-accent hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 font-black rounded-2xl px-8 py-4 transition-all shadow-[0_0_30px_var(--app-glow)] flex items-center justify-center gap-3">
               <app-spinner [loading]="loading()" size="sm"></app-spinner>
               <span>{{ editingUser() ? 'Actualizar Perfil' : 'Confirmar Alta' }}</span>
             </button>

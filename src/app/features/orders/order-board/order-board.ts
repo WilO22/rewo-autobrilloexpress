@@ -10,7 +10,6 @@ import { of } from 'rxjs';
 
 @Component({
   selector: 'app-order-board',
-  standalone: true,
   imports: [RouterLink],
   templateUrl: './order-board.html',
   changeDetection: ChangeDetectionStrategy.OnPush

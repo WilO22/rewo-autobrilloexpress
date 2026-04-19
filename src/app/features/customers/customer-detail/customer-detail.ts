@@ -9,7 +9,6 @@ import { Toasts } from '../../../core/services/ui/toast';
 
 @Component({
   selector: 'app-customer-detail',
-  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './customer-detail.html'
 })

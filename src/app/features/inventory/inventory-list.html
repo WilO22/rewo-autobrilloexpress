@@ -3,7 +3,7 @@
   <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
     <div>
       <h2 class="text-4xl font-black text-white tracking-tighter uppercase italic">
-        Inventario <span class="text-cian">REWO</span>
+        Inventario <span class="text-app-accent">REWO</span>
       </h2>
       <p class="text-gray-400 mt-1 max-w-md">Consola de gestión de insumos tácticos y control de suministros críticos.</p>
     </div>
@@ -11,7 +11,7 @@
     @if (authService.userRole() === 'SUPER_ADMIN') {
       <button 
         (click)="openModal()"
-        class="group flex items-center justify-center gap-3 px-8 py-4 bg-cian text-navy font-black rounded-2xl shadow-[0_0_30px_rgba(34,211,238,0.2)] hover:shadow-[0_0_40px_rgba(34,211,238,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer overflow-hidden relative"
+        class="group flex items-center justify-center gap-3 px-8 py-4 bg-app-accent text-navy font-black rounded-2xl shadow-[0_0_30px_var(--app-glow)] hover:shadow-[0_0_40px_var(--app-glow)] hover:scale-105 active:scale-95 transition-all cursor-pointer overflow-hidden relative"
       >
         <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
         <svg class="w-6 h-6 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
@@ -23,7 +23,7 @@
   <!-- Dashlets de KPIs (CEO Analytics Dashboard) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
     <div class="bg-navy/40 backdrop-blur-md border border-white/5 p-6 rounded-3xl flex items-center gap-5 shadow-2xl">
-      <div class="p-4 bg-white/5 rounded-2xl text-cian">
+      <div class="p-4 bg-white/5 rounded-2xl text-app-accent">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
       </div>
       <div>
@@ -32,23 +32,23 @@
       </div>
     </div>
     
-    <div class="bg-navy/40 backdrop-blur-md border border-amber-500/20 p-6 rounded-3xl flex items-center gap-5 group hover:border-amber-500/40 transition-all duration-300">
-      <div class="p-4 bg-amber-500/10 rounded-2xl text-amber-500">
+    <div class="bg-navy/40 backdrop-blur-md border border-app-warning/20 p-6 rounded-3xl flex items-center gap-5 group hover:border-app-warning/40 transition-all duration-300">
+      <div class="p-4 bg-app-warning/10 rounded-2xl text-app-warning">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
       </div>
       <div>
-        <p class="text-[10px] text-amber-500/70 uppercase font-black tracking-[0.2em] mb-1">Stock Crítico</p>
-        <p class="text-3xl font-black text-amber-500 tabular-nums">{{ lowStockCount() }}</p>
+        <p class="text-[10px] text-app-warning/70 uppercase font-black tracking-[0.2em] mb-1">Stock Crítico</p>
+        <p class="text-3xl font-black text-app-warning tabular-nums">{{ lowStockCount() }}</p>
       </div>
     </div>
 
-    <div class="bg-navy/40 backdrop-blur-md border border-rose-500/20 p-6 rounded-3xl flex items-center gap-5 group hover:border-rose-500/40 transition-all duration-300">
-      <div class="p-4 bg-rose-500/10 rounded-2xl text-rose-500">
+    <div class="bg-navy/40 backdrop-blur-md border border-app-danger/20 p-6 rounded-3xl flex items-center gap-5 group hover:border-app-danger/40 transition-all duration-300">
+      <div class="p-4 bg-app-danger/10 rounded-2xl text-app-danger">
         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
       </div>
       <div>
-        <p class="text-[10px] text-rose-500/70 uppercase font-black tracking-[0.2em] mb-1">Agotados</p>
-        <p class="text-3xl font-black text-rose-500 tabular-nums">{{ outOfStockCount() }}</p>
+        <p class="text-[10px] text-app-danger/70 uppercase font-black tracking-[0.2em] mb-1">Agotados</p>
+        <p class="text-3xl font-black text-app-danger tabular-nums">{{ outOfStockCount() }}</p>
       </div>
     </div>
   </div>
@@ -62,7 +62,7 @@
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event)"
         placeholder="Buscar por nombre o sede..." 
-        class="w-full bg-white/5 border-none rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-gray-600 focus:ring-2 focus:ring-cian/30 transition-all outline-none"
+        class="w-full bg-white/5 border-none rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-gray-600 focus:ring-2 focus:ring-app-accent/30 transition-all outline-none"
       >
     </div>
 
@@ -70,17 +70,17 @@
       <button 
         (click)="statusFilter.set('all')"
         class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
-        [class]="statusFilter() === 'all' ? 'bg-cian text-navy shadow-lg shadow-cian/20' : 'text-gray-500 hover:text-white'"
+        [class]="statusFilter() === 'all' ? 'bg-app-accent text-gray-900 shadow-lg shadow-app-accent/20' : 'text-gray-500 hover:text-white'"
       >Todos</button>
       <button 
         (click)="statusFilter.set('low')"
         class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
-        [class]="statusFilter() === 'low' ? 'bg-amber-500 text-navy shadow-lg shadow-amber-500/20' : 'text-gray-500 hover:text-amber-500'"
+        [class]="statusFilter() === 'low' ? 'bg-app-warning text-gray-900 shadow-lg shadow-app-warning/20' : 'text-gray-500 hover:text-app-warning'"
       >Crítico</button>
       <button 
         (click)="statusFilter.set('out')"
         class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
-        [class]="statusFilter() === 'out' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'text-gray-500 hover:text-rose-500'"
+        [class]="statusFilter() === 'out' ? 'bg-app-danger text-white shadow-lg shadow-app-danger/20' : 'text-gray-500 hover:text-app-danger'"
       >Inactivos</button>
     </div>
   </div>
@@ -88,24 +88,24 @@
   <!-- Grid de Inventario (Consisténcia Elite - Auto-Fill Strategy) -->
   <div class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,220px),1fr))] gap-4">
     @for (item of pagedItems(); track item.id) {
-      <div class="group relative bg-navy/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 hover:border-cian/30 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+      <div class="group relative bg-navy/40 backdrop-blur-xl border border-white/5 rounded-3xl p-4 hover:border-app-accent/30 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
         
         <!-- Glow dinámico de fondo -->
         <div class="absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] transition-all duration-700 opacity-20"
-             [class.bg-rose-500]="item.stock <= 0"
-             [class.bg-amber-500]="item.stock > 0 && item.stock <= item.minStock"
-             [class.bg-cian]="item.stock > item.minStock">
+             [class.bg-app-danger]="item.stock <= 0"
+             [class.bg-app-warning]="item.stock > 0 && item.stock <= item.minStock"
+             [class.bg-app-accent]="item.stock > item.minStock">
         </div>
 
         <div class="relative z-10 space-y-3">
           <!-- Categoría y Sede -->
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-black text-cian/60 uppercase tracking-widest bg-cian/5 px-2 py-1 rounded-md border border-cian/10">
+            <span class="text-[10px] font-black text-app-accent/60 uppercase tracking-widest bg-app-accent/5 px-2 py-1 rounded-md border border-app-accent/10">
               {{ item.unit }}
             </span>
             @if (authService.userRole() === 'SUPER_ADMIN') {
               <div class="flex gap-1">
-                <button (click)="openModal(item)" class="p-2 text-gray-600 hover:text-cian transition-colors cursor-pointer">
+                <button (click)="openModal(item)" class="p-2 text-gray-600 hover:text-app-accent transition-colors cursor-pointer">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                 </button>
               </div>
@@ -114,7 +114,7 @@
 
           <!-- Información Principal -->
           <div class="space-y-1">
-            <h3 class="text-lg font-black text-white group-hover:text-cian transition-colors line-clamp-1 leading-tight">{{ item.name }}</h3>
+            <h3 class="text-lg font-black text-white group-hover:text-app-accent transition-colors line-clamp-1 leading-tight">{{ item.name }}</h3>
             @if (authService.userRole() === 'SUPER_ADMIN') {
               <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-1">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
@@ -129,8 +129,8 @@
               <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-1">Stock Actual</p>
               <div class="flex items-baseline gap-1">
                 <span class="text-2xl font-black tabular-nums transition-all"
-                      [class.text-rose-500]="item.stock <= 0"
-                      [class.text-amber-500]="item.stock > 0 && item.stock <= item.minStock"
+                      [class.text-app-danger]="item.stock <= 0"
+                      [class.text-app-warning]="item.stock > 0 && item.stock <= item.minStock"
                       [class.text-white]="item.stock > item.minStock">
                   {{ item.stock }}
                 </span>
@@ -142,12 +142,12 @@
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button 
                 (click)="quickAdjust(item, -1)"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:bg-rose-500/20 hover:text-rose-500 transition-all cursor-pointer"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:bg-app-danger/20 hover:text-app-danger transition-all cursor-pointer"
               ><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M20 12H4"></path></svg></button>
               
               <button 
                 (click)="quickAdjust(item, 1)"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:bg-cian/20 hover:text-cian transition-all cursor-pointer"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:bg-app-accent/20 hover:text-app-accent transition-all cursor-pointer"
               ><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg></button>
             </div>
           </div>
@@ -157,17 +157,19 @@
             <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden p-[1px]">
               <div class="h-full rounded-full transition-all duration-1000 ease-out"
                    [style.width.%]="Math.min(100, (item.stock / (item.minStock * 4)) * 100)"
-                   [class.bg-gradient-to-r]="true"
-                   [class.from-rose-600.to-rose-400]="item.stock <= 0"
-                   [class.from-amber-600.to-amber-400]="item.stock > 0 && item.stock <= item.minStock"
-                   [class.from-cian.to-blue-400]="item.stock > item.minStock">
+                   [class.bg-app-danger]="item.stock <= 0"
+                   [class.shadow-[0_0_15px_var(--app-danger-glow)]]="item.stock <= 0"
+                   [class.bg-app-warning]="item.stock > 0 && item.stock <= item.minStock"
+                   [class.shadow-[0_0_15px_var(--app-warning-glow)]]="item.stock > 0 && item.stock <= item.minStock"
+                   [class.bg-app-accent]="item.stock > item.minStock"
+                   [class.shadow-[0_0_15px_var(--app-glow)]]="item.stock > item.minStock">
               </div>
             </div>
             <div class="flex justify-between text-[9px] font-bold uppercase tracking-widest">
-              <span [class]="item.stock <= item.minStock ? 'text-amber-500' : 'text-gray-500'">Mín. Requerido: {{ item.minStock }}</span>
-              <span [class.text-rose-500]="item.stock <= 0" 
-                    [class.text-amber-500]="item.stock > 0 && item.stock <= item.minStock"
-                    [class.text-cian]="item.stock > item.minStock">
+              <span [class]="item.stock <= item.minStock ? 'text-app-warning' : 'text-gray-500'">Mín. Requerido: {{ item.minStock }}</span>
+              <span [class.text-app-danger]="item.stock <= 0" 
+                    [class.text-app-warning]="item.stock > 0 && item.stock <= item.minStock"
+                    [class.text-app-accent]="item.stock > item.minStock">
                 {{ item.stock <= 0 ? 'Reponer Ya' : (item.stock <= item.minStock ? 'Crítico' : 'Óptimo') }}
               </span>
             </div>
@@ -178,7 +180,7 @@
         @if (authService.userRole() === 'SUPER_ADMIN') {
           <button 
             (click)="requestDelete(item.id)" 
-            class="absolute bottom-2 right-4 p-2 text-gray-800 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+            class="absolute bottom-2 right-4 p-2 text-gray-800 hover:text-app-danger transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
           </button>
@@ -214,7 +216,7 @@
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-3xl font-black text-white italic uppercase tracking-tighter">
-                {{ isEditing() ? 'Actualizar' : 'Registrar' }} <span class="text-cian">Insumo</span>
+                {{ isEditing() ? 'Actualizar' : 'Registrar' }} <span class="text-app-accent">Insumo</span>
               </h2>
               <p class="text-gray-500 text-sm">Completá los datos técnicos del suministro.</p>
             </div>
@@ -226,31 +228,31 @@
           <div class="space-y-5">
             <div class="space-y-2">
               <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Nombre Técnico</label>
-              <input type="text" [(ngModel)]="newItem().name" placeholder="Ej: Shampoo Arctic Foamer..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-700 outline-none focus:ring-2 focus:ring-cian/30 transition-all">
+              <input type="text" [(ngModel)]="newItem().name" placeholder="Ej: Shampoo Arctic Foamer..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder:text-gray-700 outline-none focus:ring-2 focus:ring-app-accent/30 transition-all">
             </div>
 
             <div class="grid grid-cols-2 gap-5">
               <div class="space-y-2">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Stock Base</label>
-                <input type="number" [(ngModel)]="newItem().stock" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-cian/30">
+                <input type="number" [(ngModel)]="newItem().stock" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-app-accent/30">
               </div>
               <div class="space-y-2">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Mín. Alerta</label>
-                <input type="number" [(ngModel)]="newItem().minStock" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-cian/30">
+                <input type="number" [(ngModel)]="newItem().minStock" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-app-accent/30">
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-5">
               <div class="space-y-2">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Unidad Médida</label>
-                <select [(ngModel)]="newItem().unit" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-cian/30 appearance-none">
+                <select [(ngModel)]="newItem().unit" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-app-accent/30 appearance-none">
                   <option value="litro" class="bg-[#0a0f1d] text-white">Litro(s)</option>
                   <option value="unidad" class="bg-[#0a0f1d] text-white">Unidad(es)</option>
                 </select>
               </div>
               <div class="space-y-2">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Asignar Sede</label>
-                <select [(ngModel)]="newItem().branchId" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-cian/30 appearance-none">
+                <select [(ngModel)]="newItem().branchId" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white outline-none focus:ring-2 focus:ring-app-accent/30 appearance-none">
                   @for (b of branchService.branches(); track b.id) {
                     <option [value]="b.id" class="bg-[#0a0f1d] text-white">{{ b.name }}</option>
                   }
@@ -261,7 +263,7 @@
 
           <div class="pt-4 flex gap-4">
             <button (click)="closeModal()" class="flex-1 px-8 py-4 bg-white/5 text-gray-400 font-bold rounded-2xl hover:bg-white/10 transition-all cursor-pointer">Descartar</button>
-            <button (click)="saveItem()" [disabled]="!newItem().name || !newItem().branchId" class="flex-[2] px-8 py-4 bg-cian text-navy font-black rounded-2xl shadow-[0_0_30px_rgba(34,211,238,0.2)] hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-30 disabled:hover:scale-100 uppercase tracking-widest text-sm">
+            <button (click)="saveItem()" [disabled]="!newItem().name || !newItem().branchId" class="flex-[2] px-8 py-4 bg-app-accent text-navy font-black rounded-2xl shadow-[0_0_30px_var(--app-glow)] hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-30 disabled:hover:scale-100 uppercase tracking-widest text-sm">
               Confirmar Registro
             </button>
           </div>

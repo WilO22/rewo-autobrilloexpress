@@ -15,7 +15,6 @@ import { Spinner } from '../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-inventory-list',
-  standalone: true,
   imports: [CommonModule, FormsModule, AppPaginator, ConfirmModal, Spinner],
   templateUrl: './inventory-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush

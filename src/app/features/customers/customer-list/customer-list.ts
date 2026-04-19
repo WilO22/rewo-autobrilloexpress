@@ -8,7 +8,6 @@ import { AppPaginator } from '../../../shared/components/paginator/paginator';
 
 @Component({
   selector: 'app-customer-list',
-  standalone: true,
   imports: [RouterLink, DecimalPipe, AppPaginator],
   templateUrl: './customer-list.html',
   changeDetection: ChangeDetectionStrategy.OnPush
