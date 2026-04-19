@@ -1,10 +1,7 @@
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-spinner',
-  standalone: true,
-  imports: [CommonModule],
   template: `
     @if (loading()) {
       <div [class]="overlay() ? 'fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/60 backdrop-blur-sm' : 'flex items-center justify-center p-4'">

@@ -1,23 +1,27 @@
 <div class="flex flex-col h-screen bg-navy bg-[image:var(--background-image-glass)] bg-fixed overflow-hidden">
   
   <!-- Encabezado/Topbar (Ej. Logo y Perfil) -->
-  <header class="h-16 flex items-center justify-between px-4 bg-navy/80 backdrop-blur-md border-b border-(--app-accent)/20 z-50">
+  <header class="h-16 flex items-center justify-between px-4 bg-navy/80 backdrop-blur-md border-b border-app-accent/20 z-50">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center text-navy font-bold shadow-[0_0_15px_var(--app-glow)] bg-(--app-accent) transition-colors">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-navy font-bold shadow-[0_0_15px_var(--app-glow)] bg-app-accent transition-colors">
         A
       </div>
-      <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-md">AutoBrillo<span class="text-(--app-accent) transition-colors">Express</span></h1>
+      <h1 class="text-xl font-bold tracking-tight text-white drop-shadow-md">AutoBrillo<span class="text-app-accent transition-colors">Express</span></h1>
     </div>
     
-    <!-- Perfil de usuario (Limpio, sin el selector) -->
+    <!-- Perfil de usuario (Limpio y tematizado) -->
     <div *ngIf="authService.profile() as profile" class="flex items-center gap-4">
+      
+      <!-- Selector de Temas Elite -->
+      <app-theme-selector class="hidden sm:block"></app-theme-selector>
+
       <div class="hidden sm:flex flex-col items-end">
         <span class="text-[10px] text-gray-400 font-bold tracking-[0.15em] uppercase">
           {{ authService.userRole() === 'SUPER_ADMIN' ? 'Super Admin' : (authService.userRole() === 'MANAGER' ? 'Gerente' : 'Operador') }}
         </span>
         <span class="text-sm text-white font-semibold">{{ profile.name }}</span>
       </div>
-      <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-(--app-accent) font-bold">
+      <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-app-accent font-bold shadow-[0_0_15px_var(--app-glow)] transition-all">
         {{ profile.name.charAt(0) || '?' }}
       </div>
     </div>
@@ -26,7 +30,7 @@
   <!-- Área principal de contenido -->
   <div class="flex-1 flex overflow-hidden">
     <!-- Sidebar Desktop -->
-    <aside class="hidden md:flex flex-col w-64 xl:w-72 h-full bg-navy/90 backdrop-blur-xl border-r border-(--app-accent)/20 p-4 transition-all duration-500">
+    <aside class="hidden md:flex flex-col w-64 xl:w-72 h-full bg-navy/90 backdrop-blur-xl border-r border-app-accent/20 p-4 transition-all duration-500">
         
         <!-- Root Context: Branch Selector -->
         <div class="mb-6" *ngIf="branchService.branches().length > 0">
@@ -37,7 +41,7 @@
               [disabled]="authService.userRole() === 'MANAGER'"
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-white/5 border transition-all duration-300 group"
               [class.border-white/10]="!branchService.activeBranchId()"
-              [class.border-(--app-accent)/30]="branchService.activeBranchId()"
+              [class.border-app-accent/30]="branchService.activeBranchId()"
               [style.box-shadow]="branchService.activeBranchId() ? '0 0 20px var(--app-glow)' : 'none'"
             >
               <div class="flex items-center gap-3 overflow-hidden">
@@ -73,11 +77,11 @@
                   (click)="selectBranch(null)"
                   class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all hover:bg-white/5"
                   [class.bg-white/10]="!branchService.activeBranchId()"
-                  [class.text-(--app-accent)]="!branchService.activeBranchId()"
+                  [class.text-app-accent]="!branchService.activeBranchId()"
                   [class.text-gray-400]="branchService.activeBranchId()"
                 >
                   <span class="font-bold">Todas las Sedes</span>
-                  <div *ngIf="!branchService.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-(--app-accent) shadow-[0_0_8px_var(--app-glow)]"></div>
+                  <div *ngIf="!branchService.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-app-accent shadow-[0_0_8px_var(--app-glow)]"></div>
                 </button>
 
                 <div class="h-px bg-white/5 my-1" *ngIf="authService.userRole() === 'SUPER_ADMIN'"></div>
@@ -87,11 +91,11 @@
                   (click)="selectBranch(b.id)"
                   class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all hover:bg-white/5"
                   [class.bg-white/10]="b.id === branchService.activeBranchId()"
-                  [class.text-(--app-accent)]="b.id === branchService.activeBranchId()"
+                  [class.text-app-accent]="b.id === branchService.activeBranchId()"
                   [class.text-gray-400]="b.id !== branchService.activeBranchId()"
                 >
                   <span class="font-medium text-left truncate">{{ b.name }}</span>
-                  <div *ngIf="b.id === branchService.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-(--app-accent) shadow-[0_0_8px_var(--app-glow)]"></div>
+                  <div *ngIf="b.id === branchService.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-app-accent shadow-[0_0_8px_var(--app-glow)]"></div>
                 </button>
               </div>
             </div>
@@ -106,17 +110,17 @@
             <label class="text-[9px] text-gray-600 font-black tracking-[0.2em] uppercase ml-4 mb-3 block">Operación Diaria</label>
             <div class="space-y-1">
                 <a routerLink="/app/agenda" 
-                  routerLinkActive="bg-(--app-accent)/10 text-(--app-accent) border-(--app-accent)/30 shadow-[0_0_20px_var(--app-glow)]" 
+                  routerLinkActive="bg-app-accent/10 text-app-accent border-app-accent/30 shadow-[0_0_20px_var(--app-glow)]" 
                   [routerLinkActiveOptions]="{exact: false}" 
                   class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
                 <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 <span class="font-medium">Agenda de Órdenes</span>
               </a>
-              <a routerLink="/app/clientes" routerLinkActive="bg-(--app-accent)/10 text-(--app-accent) border-(--app-accent)/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
+              <a routerLink="/app/clientes" routerLinkActive="bg-app-accent/10 text-app-accent border-app-accent/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
                 <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 <span class="font-medium">Clientes</span>
               </a>
-              <a routerLink="/app/inventario" routerLinkActive="bg-(--app-accent)/10 text-(--app-accent) border-(--app-accent)/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
+              <a routerLink="/app/inventario" routerLinkActive="bg-app-accent/10 text-app-accent border-app-accent/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
                 <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                 <span class="font-medium">Inventario & Stock</span>
               </a>
@@ -128,11 +132,11 @@
             <div>
               <label class="text-[9px] text-gray-600 font-black tracking-[0.2em] uppercase ml-4 mb-3 block">Estrategia</label>
               <div class="space-y-1">
-                <a routerLink="/app/marketing" routerLinkActive="bg-(--app-accent)/10 text-(--app-accent) border-(--app-accent)/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
+                <a routerLink="/app/marketing" routerLinkActive="bg-app-secondary/10 text-app-secondary border-app-secondary/30 shadow-[0_0_20px_var(--app-secondary-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
                   <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>
                   <span class="font-medium">Marketing</span>
                 </a>
-                <a routerLink="/app/reportes" routerLinkActive="bg-(--app-accent)/10 text-(--app-accent) border-(--app-accent)/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
+                <a routerLink="/app/reportes" routerLinkActive="bg-app-secondary/10 text-app-secondary border-app-secondary/30 shadow-[0_0_20px_var(--app-secondary-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
                   <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                   <span class="font-medium">Reportes</span>
                 </a>
@@ -145,11 +149,11 @@
             <div>
               <label class="text-[9px] text-gray-600 font-black tracking-[0.2em] uppercase ml-4 mb-3 block">Administración</label>
               <div class="space-y-1">
-                <a routerLink="/app/sedes" routerLinkActive="bg-(--app-accent)/10 text-(--app-accent) border-(--app-accent)/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
+                <a routerLink="/app/sedes" routerLinkActive="bg-app-secondary/10 text-app-secondary border-app-secondary/30 shadow-[0_0_20px_var(--app-secondary-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
                   <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                   <span class="font-medium">Sedes</span>
                 </a>
-                <a routerLink="/app/equipo" routerLinkActive="bg-(--app-accent)/10 text-(--app-accent) border-(--app-accent)/30 shadow-[0_0_20px_var(--app-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
+                <a routerLink="/app/equipo" routerLinkActive="bg-app-secondary/10 text-app-secondary border-app-secondary/30 shadow-[0_0_20px_var(--app-secondary-glow)]" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent group">
                   <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                   <span class="font-medium">Equipo</span>
                 </a>

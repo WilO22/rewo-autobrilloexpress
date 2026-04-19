@@ -2,7 +2,6 @@ import { Component, input, output, computed, ChangeDetectionStrategy } from '@an
 
 @Component({
   selector: 'app-paginator',
-  standalone: true,
   template: `
     <div class="flex items-center justify-between px-4 py-3 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
       <div class="flex items-center gap-4">

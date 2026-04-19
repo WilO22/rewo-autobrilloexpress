@@ -4,7 +4,6 @@ import { Identity } from '../../services/auth';
 
 @Component({
   selector: 'app-bottom-nav',
-  standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './bottom-nav.html',
 })
