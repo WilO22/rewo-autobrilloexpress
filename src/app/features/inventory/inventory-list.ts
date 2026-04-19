@@ -1,26 +1,42 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { effect } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { Inventory } from '../../core/services/inventory';
 import { Identity } from '../../core/services/auth';
 import { Branches } from '../../core/services/branch';
 import { Toasts } from '../../core/services/ui/toast';
 import { InventoryItem } from '../../core/models';
+import { AppPaginator } from '../../shared/components/paginator/paginator';
 import { ConfirmModal } from '../../shared/components/confirm-modal/confirm-modal';
+import { Spinner } from '../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-inventory-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmModal],
+  imports: [CommonModule, FormsModule, AppPaginator, ConfirmModal, Spinner],
   templateUrl: './inventory-list.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InventoryList {
   public inventoryService = inject(Inventory);
   public authService = inject(Identity);
   public branchService = inject(Branches);
   private toastService = inject(Toasts);
+
+  // --- State Signals ---
+  public isLoading = signal(false);
+  protected Math = Math;
+  
+  // --- ESTADO REACTIVO (UI) ---
+  searchTerm = signal('');
+  statusFilter = signal<'all' | 'low' | 'out'>('all');
+  
+  // Paginación
+  currentPage = signal(1);
+  pageSize = signal(8);
 
   // Estado del Modal de Formulario
   isModalOpen = signal(false);
@@ -30,6 +46,13 @@ export class InventoryList {
   // Estado del Modal de Confirmación
   isConfirmDialogOpen = signal(false);
   itemToDelete = signal<string | null>(null);
+
+  // Registro de efectos reactivos (UX Smart)
+  private _resetPage = effect(() => {
+    this.searchTerm();
+    this.statusFilter();
+    this.currentPage.set(1);
+  });
   
   // Objeto base para nuevos productos
   private readonly defaultItem: Partial<InventoryItem> = {
@@ -62,6 +85,49 @@ export class InventoryList {
     ),
     { initialValue: [] }
   );
+
+  /**
+   * KPIs Computados (Analítica Instantánea)
+   */
+  totalItems = computed(() => this.items().length);
+  lowStockCount = computed(() => this.items().filter(i => i.stock > 0 && i.stock <= i.minStock).length);
+  outOfStockCount = computed(() => this.items().filter(i => i.stock <= 0).length);
+
+  /**
+   * Lista Filtrada (Búsqueda + Estado)
+   * Latencia cero para el CEO.
+   */
+  filteredItems = computed(() => {
+    let list = this.items();
+    const term = this.searchTerm().toLowerCase().trim();
+    const filter = this.statusFilter();
+
+    // Filtro por término
+    if (term) {
+      list = list.filter(i => 
+        i.name.toLowerCase().includes(term) || 
+        this.getBranchName(i.branchId).toLowerCase().includes(term)
+      );
+    }
+
+    // Filtro por estado
+    if (filter === 'low') {
+      list = list.filter(i => i.stock > 0 && i.stock <= i.minStock);
+    } else if (filter === 'out') {
+      list = list.filter(i => i.stock <= 0);
+    }
+
+    return list;
+  });
+
+  /**
+   * Sección Paginada (Latencia Cero)
+   * Solo renderizamos lo que el usuario ve, manteniendo el resto en memoria reactiva.
+   */
+  pagedItems = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.filteredItems().slice(start, start + this.pageSize());
+  });
 
   /**
    * Obtiene el nombre de la sede por ID para la vista global.
@@ -108,6 +174,7 @@ export class InventoryList {
       return;
     }
 
+    this.isLoading.set(true);
     try {
       if (this.isEditing() && this.editingId()) {
         await this.inventoryService.updateItem(this.editingId()!, data);
@@ -120,6 +187,8 @@ export class InventoryList {
     } catch (error) {
       this.toastService.error('Error al procesar la solicitud.');
       console.error('Error saving item:', error);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 
@@ -139,6 +208,7 @@ export class InventoryList {
     const id = this.itemToDelete();
     if (!id) return;
 
+    this.isLoading.set(true);
     try {
       await this.inventoryService.deleteItem(id);
       this.toastService.success('Producto eliminado correctamente.');
@@ -146,6 +216,25 @@ export class InventoryList {
     } catch (error) {
       this.toastService.error('Error al eliminar el producto.');
       console.error('Error deleting item:', error);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  // --- AJUSTE RÁPIDO (SIN MODALES) ---
+
+  async quickAdjust(item: InventoryItem, delta: number) {
+    const newStock = Math.max(0, item.stock + delta);
+    if (newStock === item.stock) return;
+
+    this.isLoading.set(true);
+    try {
+      await this.inventoryService.updateItem(item.id, { stock: newStock });
+    } catch (error) {
+      this.toastService.error('Error al ajustar stock.');
+      console.error('Quick adjust error:', error);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 }

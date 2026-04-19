@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Users, UserProfile } from '../../core/services/user';
+import { Users } from '../../core/services/user';
+import { UserProfile } from '../../core/models';
 import { Branches } from '../../core/services/branch';
 import { Toasts } from '../../core/services/ui/toast';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -27,6 +28,24 @@ export class TeamList {
   loading = signal(false);
   showModal = signal(false);
   editingUser = signal<UserProfile | null>(null);
+
+  // Datos procesados con BranchName para evitar NG0100 (ExpressionChangedAfterItHasBeenCheckedError)
+  teamMembers = computed(() => {
+    const rawUsers = this.users() || [];
+    const branchList = this.branches() || [];
+    
+    return rawUsers.map(user => ({
+      ...user,
+      branchName: this.resolveBranchName(user, branchList)
+    }));
+  });
+
+  private resolveBranchName(user: UserProfile, branchList: any[]): string {
+    if (user.role === 'SUPER_ADMIN') return 'Global (Acceso Total)';
+    if (!user.branchId || user.branchId === 'all') return 'Sin asignar (Pendiente)';
+    const branch = branchList.find(b => b.id === user.branchId);
+    return branch ? branch.name : 'Sede Desconocida';
+  }
 
   // Formulario
   userForm = this.fb.group({
