@@ -5,7 +5,10 @@
       <p class="text-cyan-400/70 text-sm mt-1">Gestión de Membresías y Fidelización</p>
     </div>
     <div class="flex gap-4">
-      <input type="text" placeholder="Buscar por teléfono o nombre..." class="bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500/50 w-64 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+      <input type="text" 
+             (input)="onSearch($any($event.target).value)"
+             placeholder="Buscar por nombre o placa..." 
+             class="bg-gray-800/50 border border-gray-700/50 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500/50 w-64 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
       <button routerLink="/app/clientes/nuevo"
               class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-2 rounded-lg flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
         + Nuevo
@@ -13,59 +16,69 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    @for(customer of customers(); track customer.id) {
-      @if(isVib(customer)) {
-        <!-- Cliente VIB -->
-        <div class="bg-gray-900/50 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-md relative overflow-hidden group hover:border-cyan-400 focus:outline-none transition-all cursor-pointer" tabindex="0" [routerLink]="'/app/clientes/' + customer.id">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-full blur-[40px] group-hover:bg-cyan-400/20 transition-all pointer-events-none"></div>
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 class="text-lg font-bold text-white">{{ customer.name }}</h3>
-              <p class="text-gray-400 text-sm">{{ customer.email }}</p>
+  <div class="flex-1 overflow-y-auto">
+    @if (customersResource.isLoading()) {
+      <div class="flex flex-col items-center justify-center py-20">
+        <div class="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-cyan-500/50 font-bold uppercase tracking-widest animate-pulse">Cargando Clientes...</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for(customer of customers(); track customer.id) {
+          <!-- Tarjetas de Clientes (VIB/BASIC) - Mantenidas igual por diseño -->
+          @if(isVib(customer)) {
+            <div class="bg-gray-900/50 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-md relative overflow-hidden group hover:border-cyan-400 transition-all cursor-pointer" [routerLink]="'/app/clientes/' + customer.id">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-bold text-white">{{ customer.name }}</h3>
+                  <p class="text-gray-400 text-sm">{{ customer.email }}</p>
+                </div>
+                <span class="bg-cyan-900/40 text-cyan-400 text-xs font-bold px-3 py-1 rounded-full border border-cyan-500/30">VIB</span>
+              </div>
+              <div class="flex justify-between items-end mt-6">
+                <div>
+                  <p class="text-gray-500 text-xs mb-1">Puntos</p>
+                  <p class="text-2xl font-black text-white">{{ customer.points | number }}</p>
+                </div>
+                <div class="px-2 py-1 bg-navy/60 rounded-lg border border-white/10">
+                   <span class="text-xs font-black text-cyan-400">{{ customer.activePlate }}</span>
+                </div>
+              </div>
             </div>
-            <span class="bg-cyan-900/40 text-cyan-400 text-xs font-bold px-3 py-1 rounded-full border border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.2)]">
-              VIB
-            </span>
-          </div>
-          <div class="flex justify-between items-end mt-6">
-            <div>
-              <p class="text-gray-500 text-xs mb-1">Puntos de Lavado</p>
-              <p class="text-2xl font-black text-white">{{ customer.points | number }}</p>
+          } @else {
+            <div class="bg-gray-800/40 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-md group hover:border-gray-600 transition-all cursor-pointer" [routerLink]="'/app/clientes/' + customer.id">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-200">{{ customer.name }}</h3>
+                  <p class="text-gray-500 text-sm">{{ customer.email }}</p>
+                </div>
+                <span class="bg-gray-800 text-gray-400 text-xs font-semibold px-3 py-1 rounded-full border border-gray-700">BASIC</span>
+              </div>
+              <div class="flex justify-between items-end mt-6">
+                <div>
+                  <p class="text-gray-500 text-xs mb-1">Puntos</p>
+                  <p class="text-xl font-bold text-gray-300">{{ customer.points | number }}</p>
+                </div>
+                <div class="px-2 py-1 bg-navy/60 rounded-lg border border-white/10">
+                   <span class="text-xs font-bold text-gray-400">{{ customer.activePlate }}</span>
+                </div>
+              </div>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 group-hover:text-cyan-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
+          }
+        } @empty {
+          <div class="col-span-full text-center py-16 opacity-50">
+            <p class="text-gray-500 text-lg">No se encontraron clientes</p>
           </div>
-        </div>
-      } @else {
-        <!-- Cliente BASIC -->
-        <div class="bg-gray-800/40 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-md relative overflow-hidden group hover:border-gray-600 focus:outline-none transition-all cursor-pointer" tabindex="0" [routerLink]="'/app/clientes/' + customer.id">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 class="text-lg font-bold text-gray-200">{{ customer.name }}</h3>
-              <p class="text-gray-500 text-sm">{{ customer.email }}</p>
-            </div>
-            <span class="bg-gray-800 text-gray-400 text-xs font-semibold px-3 py-1 rounded-full border border-gray-700">
-              BASIC
-            </span>
-          </div>
-          <div class="flex justify-between items-end mt-6">
-            <div>
-              <p class="text-gray-500 text-xs mb-1">Puntos de Lavado</p>
-              <p class="text-xl font-bold text-gray-300">{{ customer.points | number }}</p>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600 group-hover:text-gray-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </div>
-        </div>
-      }
-    } @empty {
-      <div class="col-span-full text-center py-16">
-        <p class="text-gray-500 text-lg">No hay clientes registrados</p>
-        <p class="text-gray-600 text-sm mt-2">Crea el primero con el botón "+ Nuevo"</p>
+        }
       </div>
     }
+  </div>
+
+  <!-- Paginador Universal -->
+  <div class="mt-auto">
+    <app-paginator [total]="totalCustomers() || 0" 
+                   [size]="pageSize" 
+                   [current]="currentPage()"
+                   (pageChange)="currentPage.set($event)" />
   </div>
 </div>
