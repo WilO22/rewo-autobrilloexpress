@@ -1,8 +1,11 @@
-export type Role = 'SUPER_ADMIN' | 'MANAGER';
+export type Role = 'SUPER_ADMIN' | 'MANAGER' | 'OPERATOR';
 
-export interface User {
+export interface UserProfile {
   uid: string;
+  name: string;
   email: string;
   role: Role;
   branchId: string | null;
+  active: boolean;
+  createdAt?: any;
 }

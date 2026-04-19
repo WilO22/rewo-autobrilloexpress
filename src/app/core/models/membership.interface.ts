@@ -5,4 +5,5 @@ export interface Membership {
   name: string;
   type: MembershipType;
   price: number;
+  benefits?: string[];
 }
