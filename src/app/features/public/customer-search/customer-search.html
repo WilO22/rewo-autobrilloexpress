@@ -1,17 +1,17 @@
 <div class="min-h-screen bg-[#080E1E] text-white flex flex-col font-sans relative overflow-hidden">
-  <!-- Efectos de fondo Arctic -->
-  <div class="absolute -top-40 -right-40 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px]"></div>
-  <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]"></div>
+  <!-- Efectos de fondo Arctic Dinómicos -->
+  <div class="absolute -top-40 -right-40 w-96 h-96 bg-app-accent/10 rounded-full blur-[100px] transition-colors duration-1000"></div>
+  <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-app-secondary/10 rounded-full blur-[100px] transition-colors duration-1000"></div>
 
   <!-- Header minimalista -->
   <header class="p-6 flex justify-between items-center z-10">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 bg-cyan-400 rounded-lg flex items-center justify-center">
+      <div class="w-8 h-8 bg-app-accent rounded-lg flex items-center justify-center transition-colors">
         <span class="text-[#080E1E] font-bold">A</span>
       </div>
-      <span class="text-xl font-bold tracking-tight">AutoBrillo <span class="text-cyan-400">Express</span></span>
+      <span class="text-xl font-bold tracking-tight">AutoBrillo <span class="text-app-accent transition-colors">Express</span></span>
     </div>
-    <a routerLink="/login" class="text-sm font-medium text-gray-400 hover:text-cyan-400 transition-colors">
+    <a routerLink="/login" class="text-sm font-medium text-gray-400 hover:text-app-accent transition-colors">
       Acceso Personal
     </a>
   </header>
@@ -20,12 +20,14 @@
     <div class="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
       <div class="text-center space-y-2">
-        <h1 class="text-4xl font-black italic tracking-tighter">EL BRILLO QUE <br>TU AUTO <span class="text-cyan-400 underline decoration-2 underline-offset-4">MERECE</span></h1>
+        <h1 class="text-4xl font-black italic tracking-tighter uppercase transition-colors">
+          EL BRILLO QUE <br>TU AUTO <span class="text-app-accent underline decoration-2 underline-offset-4">MERECE</span>
+        </h1>
         <p class="text-gray-400 text-sm">Consultá tus puntos y beneficios acumulados.</p>
       </div>
 
       <!-- Buscador Glass -->
-      <div class="glass-card p-1 rounded-2xl flex items-center">
+      <div class="glass-card p-1 rounded-2xl flex items-center transition-all">
         <input 
           [(ngModel)]="plate"
           (keyup.enter)="onSearch()"
@@ -36,7 +38,7 @@
         <button 
           (click)="onSearch()"
           [disabled]="loading() || !plate()"
-          class="bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-700 text-[#080E1E] p-4 rounded-xl transition-all active:scale-95 shadow-lg shadow-cyan-500/20"
+          class="bg-app-accent hover:opacity-90 disabled:bg-gray-700 text-[#080E1E] p-4 rounded-xl transition-all active:scale-95 shadow-lg shadow-app-glow"
         >
           <svg *ngIf="!loading()" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <div *ngIf="loading()" class="w-6 h-6 border-2 border-[#080E1E] border-t-transparent animate-spin rounded-full"></div>
@@ -48,10 +50,10 @@
         {{ error() }}
       </div>
 
-      <div *ngIf="customer()" class="glass-card p-8 rounded-3xl space-y-6 animate-in zoom-in-95 duration-500">
+      <div *ngIf="customer()" class="glass-card p-8 rounded-3xl space-y-6 animate-in zoom-in-95 duration-500 shadow-xl">
         <div class="flex justify-between items-start">
           <div>
-            <span class="text-[10px] uppercase tracking-[0.2em] text-cyan-400 font-bold">Cliente VIP</span>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-app-accent font-bold transition-colors">Cliente VIP</span>
             <h2 class="text-2xl font-bold">{{ customer().name }}</h2>
           </div>
           <div class="text-right">
@@ -63,12 +65,12 @@
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white/5 p-4 rounded-2xl border border-white/5">
             <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold block mb-1">Puntos acumulados</span>
-            <div class="text-3xl font-black text-white italic">{{ customer().points }} <span class="text-xs font-normal not-italic text-cyan-400">PTS</span></div>
+            <div class="text-3xl font-black text-white italic">{{ customer().points }} <span class="text-xs font-normal not-italic text-app-accent transition-colors">PTS</span></div>
           </div>
           <div class="bg-white/5 p-4 rounded-2xl border border-white/5 leading-tight">
             <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold block mb-1">Membresía</span>
             <div class="text-sm font-bold truncate">{{ customer().membershipId ? 'ACTIVA: ' + customer().membershipId.toUpperCase() : 'NO TIENE' }}</div>
-            <div class="text-[10px] text-cyan-400/80 mt-1 uppercase">Ver beneficios</div>
+            <div class="text-[10px] text-app-accent/80 mt-1 uppercase transition-colors">Ver beneficios</div>
           </div>
         </div>
 
@@ -82,6 +84,6 @@
 
   <!-- Footer con info sedes -->
   <footer class="p-6 text-center text-[10px] text-gray-600 uppercase tracking-[0.3em]">
-    &copy; 2026 AutoBrillo Express — 5 sedes a tu servicio
+    &copy; 2026 AutoBrillo Express — {{ branchService.branches().length }} sedes a tu servicio
   </footer>
 </div>

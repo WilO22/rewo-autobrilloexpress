@@ -1,29 +1,36 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect, PLATFORM_ID } from '@angular/core';
 import { Firestore, collection, query, where, getDocs } from '@angular/fire/firestore';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Branches } from '../../../core/services/branch';
+import { ThemeService } from '../../../core/services/theme';
 
 @Component({
   selector: 'app-customer-search',
-  standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './customer-search.html',
   styles: [`
     .glass-card {
       background: rgba(8, 14, 30, 0.6);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(34, 211, 238, 0.2);
+      border: 1px solid var(--app-border);
+      transition: border 0.5s ease;
     }
   `]
 })
 export class CustomerSearch {
   private firestore = inject(Firestore);
+  public branchService = inject(Branches);
+  private themeService = inject(ThemeService);
+  private platformId = inject(PLATFORM_ID);
   
   plate = signal('');
   customer = signal<any>(null);
   loading = signal(false);
   error = signal('');
+
+  // El motor de temas ahora está centralizado en ThemeService (SOLID)
 
   async onSearch() {
     const plateInput = this.plate().trim().toUpperCase();

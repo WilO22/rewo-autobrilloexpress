@@ -3,16 +3,17 @@ import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ThemeService } from '../../../core/services/theme';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
 })
 export class Login {
   private auth = inject(Auth);
   private router = inject(Router);
+  private themeService = inject(ThemeService);
 
   loading = signal(false);
   errorMessage = signal('');
