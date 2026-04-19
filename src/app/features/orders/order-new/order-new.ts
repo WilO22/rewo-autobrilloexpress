@@ -161,8 +161,9 @@ export class OrderNew {
       });
 
       this.router.navigate(['/app/agenda']);
-    } catch (err) {
-      this.errorMessage.set('Error al crear la orden. Verificá los datos.');
+    } catch (err: any) {
+      // Captura de errores atómicos (Invariante FIRE-ERROR)
+      this.errorMessage.set(err?.message || 'Error al crear la orden. Verificá los datos.');
       console.error('Error creando orden:', err);
     } finally {
       this.isSubmitting.set(false);
