@@ -5,15 +5,7 @@ import { getAuth, createUserWithEmailAndPassword, Auth, setPersistence, inMemory
 import { Observable, from, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-export interface UserProfile {
-  uid: string;
-  name: string;
-  email: string;
-  role: 'SUPER_ADMIN' | 'MANAGER' | 'OPERATOR';
-  branchId: string | null;
-  active: boolean;
-  createdAt?: any;
-}
+import { UserProfile } from '../models';
 
 @Injectable({
   providedIn: 'root'
