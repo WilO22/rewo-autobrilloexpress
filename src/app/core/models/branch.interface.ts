@@ -9,6 +9,7 @@ export interface Branch {
     secondary: string;
     id?: string;
   };
+  capacityPerSlot?: number;
   createdAt?: any;
   updatedAt?: any;
   deletedAt?: any;

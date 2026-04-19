@@ -6,4 +6,6 @@ export interface Coupon {
   discount: number;
   type: CouponType;
   isActive: boolean;
+  usedBy?: string[]; // IDs de clientes que ya usaron este cupón
+  expiresAt?: any;   // Timestamp de vencimiento
 }

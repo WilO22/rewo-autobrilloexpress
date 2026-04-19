@@ -4,5 +4,6 @@ export * from './service-package.interface';
 export * from './customer.interface';
 export * from './order.interface';
 export * from './inventory-item.interface';
+export * from './inventory-movement.interface';
 export * from './membership.interface';
 export * from './coupon.interface';
