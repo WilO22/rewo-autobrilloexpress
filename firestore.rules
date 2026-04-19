@@ -75,7 +75,9 @@ service cloud.firestore {
     // Marketing: Cupones y Membresías (Globales)
     match /coupons/{couponId} {
       allow read: if isAuthenticated();
-      allow write: if isSuperAdmin();
+      allow create, delete: if isSuperAdmin();
+      allow update: if isSuperAdmin() || 
+                    (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy']));
     }
 
     match /memberships/{membershipId} {
@@ -89,10 +91,24 @@ service cloud.firestore {
       allow write: if isSuperAdmin();
     }
 
+    // Agenda: Control de capacidad por sucursal
+    match /branch_slots/{slotId} {
+      allow read: if isAuthenticated();
+      // El ID del slot empieza con branchId, lo usamos para validar
+      allow write: if isManagerOfBranch(slotId.split('_')[0]);
+    }
+
     // Transacciones de Lealtad: Historial de puntos
     match /loyalty_transactions/{txId} {
-      allow read: if belongsToBranch(resource.data.branchId) || isSuperAdmin();
+      allow read: if belongsToBranch(resource.data.branchId);
       allow create: if belongsToBranch(request.resource.data.branchId);
+    }
+
+    // Kardex: Auditoría de movimientos de inventario
+    match /inventory_movements/{mvId} {
+      allow read: if belongsToBranch(resource.data.branchId);
+      allow create: if belongsToBranch(request.resource.data.branchId);
+      allow update, delete: if false; // Auditoría inmutable
     }
   }
 }
