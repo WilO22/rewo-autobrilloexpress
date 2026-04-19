@@ -6,9 +6,42 @@
 @theme {
   --color-navy: #080E1E;
   --color-cian: #22D3EE;
+  
+  /* Mapeo para utilidades estándar de Tailwind (ej: text-app-accent) */
+  --color-app-accent: var(--app-accent);
+  --color-app-glow: var(--app-glow);
+  --color-app-border: var(--app-border);
+}
+
+:root {
+  /* Variables base para CSS crudo y templates (--variable) */
+  --app-accent: var(--dynamic-accent, #22D3EE);
+  --app-glow: var(--dynamic-glow, rgba(34, 211, 238, 0.2));
+  --app-border: var(--dynamic-border, rgba(34, 211, 238, 0.1));
 }
 
 body {
   background-color: var(--color-navy);
   color: white;
+  accent-color: var(--color-app-accent);
+}
+
+/* Scrollbar ultra-minimalista para Sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-app-accent);
+  border-radius: 10px;
+  box-shadow: 0 0 5px var(--color-app-glow);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-accent) transparent;
 }

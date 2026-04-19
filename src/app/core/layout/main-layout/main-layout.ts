@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, effect, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet, RouterModule, Router } from '@angular/router';
 import { BottomNav } from '../bottom-nav/bottom-nav';
 import { Branches } from '../../services/branch';
 import { Identity } from '../../services/auth';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-main-layout',
@@ -15,16 +15,24 @@ export class MainLayout implements OnInit {
   public branchService = inject(Branches);
   private router = inject(Router);
   public authService = inject(Identity);
+  private platformId = inject(PLATFORM_ID);
 
   isDropdownOpen = signal(false);
 
-  ngOnInit() {
+  constructor() {
+    // Efecto reactivo Senior para cambiar el color de la App según la sede
+    effect(() => {
+      if (isPlatformBrowser(this.platformId)) {
+        const theme = this.branchService.currentTheme();
+        const style = document.documentElement.style;
+        style.setProperty('--dynamic-accent', theme.accent);
+        style.setProperty('--dynamic-glow', theme.glow);
+        style.setProperty('--dynamic-border', theme.border);
+      }
+    });
   }
 
-  getBranchName(id: string | null | undefined): string {
-    if (!id) return 'Todas las Sedes';
-    const branch = this.branchService.branches().find(b => b.id === id);
-    return branch ? branch.name : 'Sede Desconocida';
+  ngOnInit() {
   }
 
   toggleDropdown() {
