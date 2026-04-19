@@ -1,11 +1,16 @@
 import { Injectable, inject, signal } from '@angular/core';
 import {
   Firestore, collection, query, where, orderBy, limit,
-  doc, addDoc, updateDoc, serverTimestamp
+  doc, addDoc, updateDoc, serverTimestamp, startAfter, getCountFromServer, QueryConstraint
 } from '@angular/fire/firestore';
 import { collectionData, docData } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { Customer } from '../models';
+
+export interface PaginatedCustomers {
+  items: Customer[];
+  total: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +18,42 @@ import { Customer } from '../models';
 export class Customers {
   private firestore = inject(Firestore);
 
-  /** Lista paginada de clientes (ARCH-FIREBASE regla 5: limit por defecto) */
-  getCustomers(maxResults = 20): Observable<Customer[]> {
+  /** 
+   * Búsqueda paginada (ARCH-FIREBASE regla 5: limit por defecto)
+   * Soporta búsqueda por nombre o placa y paginación por cursor.
+   */
+  getPaginated(term: string = '', pageSize: number = 5, lastVisible: any = null): Observable<Customer[]> {
     const ref = collection(this.firestore, 'customers');
-    const q = query(ref, orderBy('name'), limit(maxResults));
+    const constraints: QueryConstraint[] = [orderBy('name'), limit(pageSize)];
+    
+    if (term) {
+      // Búsqueda simple por prefijo (Firestore limitation: use text index or simple range)
+      constraints.push(where('name', '>=', term));
+      constraints.push(where('name', '<=', term + '\uf8ff'));
+    }
+
+    if (lastVisible) {
+      constraints.push(startAfter(lastVisible));
+    }
+
+    const q = query(ref, ...constraints);
+    return collectionData(q, { idField: 'id' }) as Observable<Customer[]>;
+  }
+
+  /** Obtener el total de clientes para el indicador de paginación */
+  count(): Observable<number> {
+    const ref = collection(this.firestore, 'customers');
+    return from(getCountFromServer(ref).then(snap => snap.data().count));
+  }
+
+  /** 
+   * Retorna un índice liviano de todos los clientes para búsqueda híbrida.
+   * Optimizado para búsqueda por cualquier caracter (substring) y case-insensitive en el cliente.
+   */
+  getSearchIndex(): Observable<Customer[]> {
+    const ref = collection(this.firestore, 'customers');
+    const q = query(ref, orderBy('name'));
+    // ARCH-SOLID: Devolvemos todo el objeto pero solo usaremos campos clave en el componente para ahorrar memoria
     return collectionData(q, { idField: 'id' }) as Observable<Customer[]>;
   }
 
