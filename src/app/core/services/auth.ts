@@ -60,18 +60,19 @@ export class Identity {
 
   isProfileLoading = computed(() => this.profileResource.isLoading());
 
-  constructor() {
-    /** 
-     * Sincronización Automática:
-     * Si el perfil tiene una branchId fija (Manager), forzamos esa sede en el sistema.
-     */
-    effect(() => {
-      const p = this.profile();
-      if (p?.branchId) {
-        this.branchService.setActiveBranch(p.branchId);
-      }
-    });
-  }
+  /** 
+   * Sincronización Automática:
+   * Si el perfil tiene una branchId fija (Manager), forzamos esa sede en el sistema.
+   * Senior Architect Pattern: Inicialización de campo para efectos en servicios.
+   */
+  private branchSyncEffect = effect(() => {
+    const p = this.profile();
+    if (p?.branchId) {
+      this.branchService.setActiveBranch(p.branchId);
+    }
+  });
+
+  // Otros métodos...
 
   /** 
    * Gatekeeper de Arranque (Procedimiento Industrial):

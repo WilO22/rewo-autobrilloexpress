@@ -12,22 +12,20 @@ import { UserProfile } from '../models';
 })
 export class Users {
   private firestore = inject(Firestore);
-  private secondaryAuth: Auth;
-
-  constructor() {
-    // Inicializar app secundaria para evitar desloguear al admin actual
+  
+  // Aislamiento de Auth (App Secundaria para no desloguear al admin)
+  private secondaryAuth = (() => {
     let secondaryApp: FirebaseApp;
     if (getApps().find(app => app.name === 'admin-app')) {
       secondaryApp = getApp('admin-app');
     } else {
       secondaryApp = initializeApp(environment.firebase, 'admin-app');
     }
-    this.secondaryAuth = getAuth(secondaryApp);
-
+    const auth = getAuth(secondaryApp);
     // FORZAR AISLAMIENTO: No persistir en IndexedDB/LocalStorage
-    // Esto evita que esta instancia choque con la del CEO logueado
-    setPersistence(this.secondaryAuth, inMemoryPersistence);
-  }
+    setPersistence(auth, inMemoryPersistence);
+    return auth;
+  })();
 
   /** Obtiene todos los usuarios administrativos en tiempo real */
   getAllUsers(): Observable<UserProfile[]> {

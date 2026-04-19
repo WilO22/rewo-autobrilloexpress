@@ -5,19 +5,58 @@
 
 @theme {
   --color-navy: #080E1E;
-  --color-cian: #22D3EE;
   
-  /* Mapeo para utilidades estándar de Tailwind (ej: text-app-accent) */
+  /* Mapeo de Semantic Tokens para utilidades de Tailwind 4 */
   --color-app-accent: var(--app-accent);
+  --color-app-secondary: var(--app-secondary);
+  --color-app-success: var(--app-success);
+  --color-app-warning: var(--app-warning);
+  --color-app-danger: var(--app-danger);
+  
   --color-app-glow: var(--app-glow);
   --color-app-border: var(--app-border);
+  --color-app-secondary-glow: var(--app-secondary-glow);
+
+  /* Sombras Dinámicas (Glow Engine) */
+  --shadow-app-glow: 0 0 30px var(--app-glow);
+  --shadow-app-secondary-glow: 0 0 30px var(--app-secondary-glow);
+  --shadow-app-danger-glow: 0 0 30px var(--app-danger-glow);
+  --shadow-app-warning-glow: 0 0 30px var(--app-warning-glow);
+}
+
+@property --app-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #22d3ee;
+}
+
+@property --app-secondary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6366f1;
 }
 
 :root {
-  /* Variables base para CSS crudo y templates (--variable) */
-  --app-accent: var(--dynamic-accent, #22D3EE);
-  --app-glow: var(--dynamic-glow, rgba(34, 211, 238, 0.2));
-  --app-border: var(--dynamic-border, rgba(34, 211, 238, 0.1));
+  /* 1. Brand Identity (User/Branch Choice) */
+  --app-accent: var(--dynamic-accent, #22d3ee);
+  --app-secondary: var(--dynamic-secondary, #6366f1);
+  
+  /* 2. Semantic States (Global Tokens) */
+  --app-success: #10B981;
+  --app-warning: #F59E0B;
+  --app-danger: #F43F5E;
+  
+  /* 3. Dynamic Harmony (Interpolación Suave 0.5s) */
+  transition: --app-accent 0.5s ease-in-out, 
+              --app-secondary 0.5s ease-in-out,
+              background-color 0.5s ease-in-out;
+
+  --app-glow: var(--dynamic-glow, color-mix(in srgb, var(--app-accent) 20%, transparent));
+  --app-border: var(--dynamic-border, color-mix(in srgb, var(--app-accent) 15%, transparent));
+  
+  --app-secondary-glow: var(--dynamic-secondary-glow, color-mix(in srgb, var(--app-secondary) 20%, transparent));
+  --app-danger-glow: color-mix(in srgb, var(--app-danger) 20%, transparent);
+  --app-warning-glow: color-mix(in srgb, var(--app-warning) 20%, transparent);
 }
 
 body {

@@ -72,9 +72,11 @@ export class Branches {
     const activeId = this.activeBranchId();
     if (!activeId) {
       return {
-        accent: '#94a3b8', // Slate 400 (Neutral para "Todas las Sedes")
-        glow: 'rgba(148, 163, 184, 0.3)',
-        border: 'rgba(148, 163, 184, 0.1)',
+        accent: null,
+        secondary: null,
+        glow: null,
+        border: null,
+        secondaryGlow: null,
         name: 'Todas las Sedes'
       };
     }
@@ -82,27 +84,26 @@ export class Branches {
     const branch = this.allBranches().find(b => b.id === activeId);
     if (!branch) {
       return {
-        accent: '#22d3ee',
-        glow: 'rgba(34, 211, 238, 0.3)',
-        border: 'rgba(34, 211, 238, 0.1)',
-        name: 'Cargando...'
+        accent: null,
+        secondary: null,
+        glow: null,
+        border: null,
+        secondaryGlow: null,
+        name: 'Cargando Sede...'
       };
     }
     
-    // Mapeo de colores por tipo de sede o nombre (Elite UX)
-    const colorMap: Record<string, string> = {
-      'Sede Norte': '#22d3ee', // Cyan
-      'Sede Sur': '#a855f7',   // Purple
-      'Sede Central': '#f59e0b', // Amber
-      'Default': '#22d3ee'
-    };
-
-    const accent = colorMap[branch.name] || colorMap['Default'];
+    // Extracción dinámica de datos desde Firestore (Fase 3: Motor Bi-Tonal)
+    const theme = branch.theme;
+    const accent = theme?.primary || null;
+    const secondary = theme?.secondary || null;
     
     return {
       accent,
-      glow: `${accent}40`, // 25% opacity aprox
-      border: `${accent}15`, // Muy sutil
+      secondary,
+      glow: accent ? `${accent}40` : null, 
+      border: accent ? `${accent}15` : null,
+      secondaryGlow: secondary ? `${secondary}30` : null,
       name: branch.name
     };
   });
