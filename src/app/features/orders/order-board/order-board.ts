@@ -1,51 +1,70 @@
-import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy, signal, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { Branches } from '../../../core/services/branch';
 import { Orders } from '../../../core/services/order';
 import { ServicePackages } from '../../../core/services/service-package';
 import { Toasts } from '../../../core/services/ui/toast';
 import { Order, ServicePackage } from '../../../core/models';
-import { switchMap, of, firstValueFrom } from 'rxjs';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { signal } from '@angular/core'; 
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-order-board',
+  standalone: true,
   imports: [RouterLink],
   templateUrl: './order-board.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderBoard {
-  private branchService = inject(Branches);
+  public branchService = inject(Branches);
   private orderService = inject(Orders);
   private packageService = inject(ServicePackages);
   private toastService = inject(Toasts);
 
-  /** IDs de órdenes en proceso de transacción (para loading UI) */
-  processingIds = signal<Set<string>>(new Set());
+  /** IDs de órdenes en proceso de transacción (Se resetea automáticamente al cambiar de sede) */
+  processingIds = linkedSignal<string | null, Set<string>>({
+    source: () => this.branchService.activeBranchId(),
+    computation: () => new Set()
+  });
 
-  /** Catálogo de servicios para lookup de metadatos (puntos, stock) */
-  packages = toSignal(this.packageService.getPackages(), { initialValue: [] as ServicePackage[] });
+  /** Catálogo de servicios (Modernizado con rxResource) */
+  private packagesResource = rxResource<ServicePackage[], void>({
+    stream: () => this.packageService.getPackages()
+  });
 
-  /** Órdenes reactivas: cambian automáticamente con la sucursal activa */
-  private orders$ = toObservable(this.branchService.activeBranchId).pipe(
-    switchMap(branchId =>
+  // Computed seguro: Si hay error o está cargando, devuelve array vacío para evitar crashes
+  packages = computed<ServicePackage[]>(() => {
+    if (this.packagesResource.error()) {
+      console.warn('[OrderBoard] Error loading packages catálogo:', this.packagesResource.error());
+      return [];
+    }
+    return this.packagesResource.value() ?? [];
+  });
+
+  /** Órdenes reactivas (Modernizado con rxResource para Angular 21 Elite) */
+  private ordersResource = rxResource<Order[], string | null>({
+    params: () => this.branchService.activeBranchId(),
+    stream: ({ params: branchId }) =>
       branchId ? this.orderService.getOrdersByBranch(branchId) : of([])
-    )
-  );
+  });
 
-  orders = toSignal(this.orders$, { initialValue: [] as Order[] });
+  orders = computed<Order[]>(() => this.ordersResource.value() ?? []);
+  isLoading = computed(() => this.ordersResource.isLoading());
 
   /** Derivados por estado para el pipeline visual */
   agendados = computed(() => this.orders().filter(o => o.status === 'AGENDADO'));
   enProceso = computed(() => this.orders().filter(o => o.status === 'EN_PROCESO'));
   completados = computed(() => this.orders().filter(o => o.status === 'COMPLETADO'));
 
+  /** Nombre de la sede activa (Computado desde el catálogo) */
   branchName = computed(() => {
     const id = this.branchService.activeBranchId();
+    if (!id) return 'Ninguna';
+    
+    // Buscamos en el catálogo de sedes del servicio
+    // Nota: El servicio de sedes carga su lista vía rxResource internamente
     const branch = this.branchService.branches().find(b => b.id === id);
-    return branch?.name ?? 'Sin sede';
+    return branch ? branch.name : 'Cargando...';
   });
 
   /**

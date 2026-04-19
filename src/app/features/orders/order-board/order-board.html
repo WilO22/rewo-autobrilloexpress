@@ -1,97 +1,139 @@
-<div class="h-full flex flex-col gap-6">
-  <!-- Header con acciones -->
-  <div class="flex justify-between items-center bg-gray-900/40 p-6 rounded-2xl border border-cyan-500/20 backdrop-blur-xl">
-    <div>
-      <h1 class="text-2xl font-bold text-white tracking-tight">Agenda Operativa</h1>
-      <p class="text-cyan-400/70 text-sm mt-1">Sede activa: {{ branchName() }}</p>
+<div class="h-full flex flex-col gap-6 relative">
+  <!-- Loading Overlay (Disruptivo) -->
+  @if(isLoading()) {
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-md z-50 flex items-center justify-center rounded-2xl border border-cyan-500/10">
+      <div class="flex flex-col items-center gap-4">
+        <div class="h-12 w-12 border-4 border-cyan-500/10 border-t-cyan-500 rounded-full animate-spin shadow-[0_0_20px_rgba(34,211,238,0.2)]"></div>
+        <p class="text-cyan-400 font-bold tracking-widest text-xs uppercase animate-pulse">Sincronizando Agenda</p>
+      </div>
     </div>
-    <button routerLink="/app/agenda/nueva" class="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)]">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      Nueva Orden
-    </button>
+  }
+
+  <!-- Header con acciones: Siempre arriba, ancho completo -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-900/40 p-4 sm:p-5 rounded-2xl border border-(--app-accent)/20 backdrop-blur-xl gap-4 shrink-0 transition-colors duration-500">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+        @if (!branchService.activeBranchId()) {
+          <span class="text-gray-500">🏢</span>
+        }
+        {{ branchService.activeBranchId() ? 'Agenda Operativa' : 'Consola de Mando Global' }}
+      </h1>
+      <p class="text-(--app-accent)/70 text-xs sm:text-sm mt-1 font-medium italic">
+        {{ branchService.activeBranchId() ? 'Sede activa: ' + branchName() : 'Visualizando métricas de toda la red' }}
+      </p>
+    </div>
+    
+    <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+      @if (!branchService.activeBranchId()) {
+        <div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-500"></span>
+          </span>
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            MODO GESTIÓN ACTIVO
+          </p>
+        </div>
+      }
+      <button 
+        [routerLink]="branchService.activeBranchId() ? '/app/agenda/nueva' : null" 
+        [disabled]="!branchService.activeBranchId()"
+        class="bg-(--app-accent) hover:brightness-110 text-gray-900 font-bold px-6 py-2.5 sm:py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_var(--app-glow)] disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed active:scale-95 w-full sm:w-auto"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Nueva Orden</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Board / Pipeline de Órdenes -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+  <!-- Board / Pipeline de Órdenes: Abajo, aprovechando el resto del espacio -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 flex-1 min-h-0 overflow-hidden">
+    
     <!-- Columna Agendados -->
-    <div class="flex flex-col gap-4">
-      <h2 class="text-white/80 font-semibold px-2 flex justify-between">
+    <div class="flex flex-col gap-3 min-h-0">
+      <h2 class="text-white/80 font-bold px-2 flex justify-between items-center text-xs uppercase tracking-widest">
         <span>🗓 Agendados</span>
-        <span class="bg-gray-800 text-xs px-2 py-1 rounded-full text-cyan-400">{{ agendados().length }}</span>
+        <span class="bg-gray-800 text-[10px] px-2 py-0.5 rounded-full text-(--app-accent) font-bold border border-white/5">{{ agendados().length }}</span>
       </h2>
-      <div class="bg-gray-800/20 rounded-xl p-4 flex flex-col gap-4 border border-white/5 h-full overflow-y-auto">
+      <div class="bg-gray-800/20 rounded-xl p-3 sm:p-4 flex flex-col gap-3 border border-white/5 h-full overflow-y-auto custom-scrollbar shadow-inner">
         @for(order of agendados(); track order.id) {
-          <div class="bg-gray-900/60 p-4 rounded-lg border border-cyan-500/10 hover:border-cyan-500/30 transition duration-300">
-            <div class="flex justify-between items-start mb-3">
-              <span class="text-lg font-bold text-white bg-gray-800 px-3 py-1 rounded-md">{{ order.vehiclePlate }}</span>
+          <div class="bg-gray-900/60 p-4 rounded-lg border border-(--app-accent)/10 hover:border-(--app-accent)/30 transition-all duration-300 group">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-lg font-black text-white bg-gray-800 px-3 py-1 rounded-md border border-white/5">{{ order.vehiclePlate }}</span>
             </div>
-            <p class="text-gray-400 text-sm mb-4">{{ getServiceName(order.serviceId) }}</p>
+            <p class="text-gray-400 text-xs mb-4 line-clamp-1">{{ getServiceName(order.serviceId) }}</p>
             <button 
               (click)="onStartProcessing(order)"
               [disabled]="processingIds().has(order.id)"
-              class="w-full bg-gray-800 hover:bg-gray-700 text-white text-sm py-2 rounded transition-colors border border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+              class="w-full bg-gray-800 hover:bg-gray-700 text-white text-xs py-2.5 rounded-lg transition-all border border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 font-bold"
             >
               @if(processingIds().has(order.id)) {
-                <span class="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span class="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
               }
               Iniciar Lavado
             </button>
           </div>
         } @empty {
-          <p class="text-gray-600 text-sm text-center py-8">Sin órdenes agendadas</p>
+          <div class="flex flex-col items-center justify-center py-10 opacity-30">
+             <p class="text-gray-500 text-xs uppercase font-bold tracking-tighter">Sin órdenes</p>
+          </div>
         }
       </div>
     </div>
 
     <!-- Columna En Proceso -->
-    <div class="flex flex-col gap-4">
-      <h2 class="text-cyan-400 font-semibold px-2 flex justify-between">
+    <div class="flex flex-col gap-3 min-h-0">
+      <h2 class="text-(--app-accent) font-bold px-2 flex justify-between items-center text-xs uppercase tracking-widest">
         <span>⚡ En Proceso</span>
-        <span class="bg-cyan-900/30 text-xs px-2 py-1 rounded-full text-cyan-400">{{ enProceso().length }}</span>
+        <span class="bg-(--app-accent)/10 text-[10px] px-2 py-0.5 rounded-full text-(--app-accent) font-bold border border-(--app-accent)/20">{{ enProceso().length }}</span>
       </h2>
-      <div class="bg-gray-800/20 rounded-xl p-4 flex flex-col gap-4 border border-cyan-500/10 h-full overflow-y-auto shadow-[inset_0_0_40px_rgba(34,211,238,0.03)]">
+      <div class="bg-gray-800/20 rounded-xl p-3 sm:p-4 flex flex-col gap-3 border border-(--app-accent)/10 h-full overflow-y-auto custom-scrollbar shadow-[inset_0_0_40px_rgba(var(--app-accent-rgb),0.03)]">
         @for(order of enProceso(); track order.id) {
-          <div class="bg-gray-900/60 p-4 rounded-lg border border-cyan-500/30 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
-            <div class="flex justify-between items-start mb-3">
-              <span class="text-lg font-bold text-white">{{ order.vehiclePlate }}</span>
+          <div class="bg-gray-900/60 p-4 rounded-lg border border-(--app-accent)/30 relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-(--app-accent) shadow-[0_0_15px_var(--app-glow)]"></div>
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-lg font-black text-white">{{ order.vehiclePlate }}</span>
             </div>
-            <p class="text-gray-400 text-sm mb-4">{{ getServiceName(order.serviceId) }}</p>
+            <p class="text-gray-400 text-xs mb-4 line-clamp-1">{{ getServiceName(order.serviceId) }}</p>
             <button 
               (click)="onCompleteOrder(order)"
               [disabled]="processingIds().has(order.id)"
-              class="w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-sm py-2 rounded transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+              class="w-full bg-(--app-accent)/10 hover:bg-(--app-accent)/20 border border-(--app-accent)/30 text-(--app-accent) text-xs py-2.5 rounded-lg transition-all font-black disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
             >
               @if(processingIds().has(order.id)) {
-                <span class="h-4 w-4 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></span>
+                <span class="h-3 w-3 border-2 border-(--app-accent)/30 border-t-(--app-accent) rounded-full animate-spin"></span>
               }
-              Marcar Completado
+              Finalizar
             </button>
           </div>
         } @empty {
-          <p class="text-gray-600 text-sm text-center py-8">Sin órdenes en proceso</p>
+          <div class="flex flex-col items-center justify-center py-10 opacity-30">
+            <p class="text-gray-500 text-xs uppercase font-bold tracking-tighter">Área despejada</p>
+         </div>
         }
       </div>
     </div>
 
     <!-- Columna Completados -->
-    <div class="flex flex-col gap-4">
-      <h2 class="text-gray-500 font-semibold px-2 flex justify-between">
-        <span>✅ Completados (Hoy)</span>
-        <span class="bg-gray-800 text-xs px-2 py-1 rounded-full text-gray-400">{{ completados().length }}</span>
+    <div class="flex flex-col gap-3 min-h-0 md:col-span-2 xl:col-span-1">
+      <h2 class="text-gray-500 font-bold px-2 flex justify-between items-center text-xs uppercase tracking-widest">
+        <span>✅ Completados</span>
+        <span class="bg-gray-800 text-[10px] px-2 py-0.5 rounded-full text-gray-400 font-bold border border-white/5">{{ completados().length }}</span>
       </h2>
-      <div class="bg-gray-800/10 rounded-xl p-4 flex flex-col gap-4 border border-white/5 h-full overflow-y-auto">
+      <div class="bg-gray-800/5 rounded-xl p-3 sm:p-4 flex flex-col gap-3 border border-white/5 h-full overflow-y-auto custom-scrollbar">
         @for(order of completados(); track order.id) {
-          <div class="bg-gray-900/30 p-4 rounded-lg border border-white/5 opacity-70">
+          <div class="bg-gray-900/30 p-4 rounded-lg border border-white/5 opacity-60 hover:opacity-100 transition-opacity">
             <div class="flex justify-between items-start">
-              <span class="text-lg font-semibold text-gray-300">{{ order.vehiclePlate }}</span>
+              <span class="text-lg font-bold text-gray-300">{{ order.vehiclePlate }}</span>
             </div>
-            <p class="text-gray-500 text-sm">{{ getServiceName(order.serviceId) }}</p>
+            <p class="text-gray-500 text-xs line-clamp-1">{{ getServiceName(order.serviceId) }}</p>
           </div>
         } @empty {
-          <p class="text-gray-600 text-sm text-center py-8">Sin completados hoy</p>
+          <div class="flex flex-col items-center justify-center py-10 opacity-20">
+            <p class="text-gray-500 text-xs uppercase font-bold tracking-tighter">Sin registros</p>
+         </div>
         }
       </div>
     </div>

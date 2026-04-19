@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Timestamp } from '@angular/fire/firestore';
@@ -10,26 +10,68 @@ import { Branches } from '../../../core/services/branch';
 import { ServicePackage, Customer, Membership } from '../../../core/models';
 
 import { CurrencyPipe, CommonModule } from '@angular/common';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { AppPaginator } from '../../../shared/components/paginator/paginator';
 
 @Component({
   selector: 'app-order-new',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, CommonModule],
+  imports: [RouterLink, CurrencyPipe, CommonModule, AppPaginator],
   templateUrl: './order-new.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderNew {
   private router = inject(Router);
   private orderService = inject(Orders);
-  private branchService = inject(Branches);
+  public branchService = inject(Branches);
   private packageService = inject(ServicePackages);
   private customerService = inject(Customers);
   private membershipService = inject(Memberships);
 
   /** Catálogo de datos reactivos */
   packages = toSignal(this.packageService.getPackages(), { initialValue: [] as ServicePackage[] });
-  customers = toSignal(this.customerService.getCustomers(100), { initialValue: [] as Customer[] });
   memberships = toSignal(this.membershipService.getMemberships(), { initialValue: [] as Membership[] });
+
+  /** Guardia de acción reactiva */
+  hasActiveBranch = computed(() => !!this.branchService.activeBranchId());
+
+
+  /** Estado del buscador y paginación */
+  searchTerm = signal('');
+  currentPage = signal(1);
+  pageSize = 5;
+
+  /** 
+   * Índice de búsqueda híbrida (ARCH-EDO-1: Carga única reactiva)
+   * Cargamos los nombres y IDs una sola vez para búsqueda substring instantánea.
+   */
+  customersResource = rxResource({
+    stream: () => this.customerService.getSearchIndex()
+  });
+
+  /** 
+   * Búsqueda por cualquier coincidencia y case-insensitive (PEDIDO-USUARIO)
+   * Filtramos en memoria para latencia cero.
+   */
+  filteredCustomers = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    const all = this.customersResource.value() ?? [];
+    
+    if (!term) return all;
+
+    return all.filter(c => 
+      c.name.toLowerCase().includes(term) || 
+      (c.activePlate && c.activePlate.toLowerCase().includes(term))
+    );
+  });
+
+  /** Paginación local sobre los resultados filtrados */
+  customers = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filteredCustomers().slice(start, start + this.pageSize);
+  });
+
+  totalCustomers = computed(() => this.filteredCustomers().length);
 
   /** Estado del formulario */
   vehiclePlate = signal('');
@@ -44,6 +86,11 @@ export class OrderNew {
   selectPackage(pkg: ServicePackage) {
     this.selectedPackage.set(pkg);
     this.calculateFinalPrice();
+  }
+
+  onSearch(term: string) {
+    this.searchTerm.set(term);
+    this.currentPage.set(1);
   }
 
   selectCustomer(customer: Customer) {
