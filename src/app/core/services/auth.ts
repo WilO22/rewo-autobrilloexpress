@@ -1,22 +1,28 @@
-import { Injectable, inject, signal, computed, effect, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
-import { Auth, user, User as FireUser, onAuthStateChanged } from '@angular/fire/auth';
-import { Firestore, doc, docData } from '@angular/fire/firestore';
-import { toSignal, rxResource } from '@angular/core/rxjs-interop';
-import { switchMap, of, map, Observable } from 'rxjs';
-import { Branches } from './branch';
+import { Injectable, inject, PLATFORM_ID, signal, computed, effect, resource } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
+import { Auth, user, User as FireUser, onAuthStateChanged, signOut } from '@angular/fire/auth';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { BranchState } from './branch.state';
 import { UserProfile } from '../models';
+import { environment } from '../../../environments/environment';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
+/**
+ * Senior Architect Pattern: Identity Service (RESTful Hydra)
+ * Encargado de la sesión y el perfil del usuario.
+ * OPTIMIZACIÓN CRÍTICA: Usa la API REST para el arranque, eliminando el SDK de Firestore
+ * del bundle inicial para garantizar un peso < 500kB.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class Identity {
   private auth = inject(Auth);
-  private firestore = inject(Firestore);
-  private branchService = inject(Branches);
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
+  private branchState = inject(BranchState);
 
   /** Usuario base de Firebase Auth */
   user = toSignal(user(this.auth));
@@ -24,22 +30,52 @@ export class Identity {
   /** Máquina de estados para la sesión */
   authStatus = signal<AuthStatus>('loading');
 
-  /** Perfil extendido desde Firestore (Modernizado con rxResource) */
-  private profileResource = rxResource<UserProfile | null, FireUser | null>({
+  /** 
+   * Perfil extendido vía REST API (Optimizado para bundle size) 
+   * Hecho: Usar fetch() nativo tiene costo CERO en el bundle inicial.
+   * Angular 20/21 Signature: uses 'params' instead of 'request'.
+   */
+  private profileResource = resource<UserProfile | null, FireUser | null>({
+    defaultValue: null,
     params: () => this.user() ?? null,
-    stream: ({ params: u }) => {
-      if (!u) return of(null);
-      const userRef = doc(this.firestore, `users/${u.uid}`);
-      return docData(userRef) as Observable<UserProfile>;
+    loader: async ({ params: usuario }) => {
+      if (!usuario) return null;
+
+      try {
+        const token = await usuario.getIdToken();
+        const url = `https://firestore.googleapis.com/v1/projects/${environment.firebase.projectId}/databases/(default)/documents/users/${usuario.uid}`;
+        
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) throw new Error('Error al cargar perfil vía REST');
+
+        const data = await response.json();
+        
+        return {
+          uid: usuario.uid,
+          email: usuario.email || '',
+          name: data.fields?.name?.stringValue || usuario.displayName || 'Usuario',
+          role: (data.fields?.role?.stringValue as any) || 'OPERATOR',
+          branchId: data.fields?.branchId?.stringValue || null,
+          active: data.fields?.active?.booleanValue ?? true
+        } as UserProfile;
+      } catch (error) {
+        console.error('REST Bootstrap Error:', error);
+        return null;
+      }
     }
   });
 
-  /** Perfil extendido de Firestore (Sincronizado) */
+  /** 
+   * Perfil Principal (Computed Signal) 
+   * Proporciona un objeto seguro incluso si la carga falla o está en curso.
+   */
   profile = computed<UserProfile>(() => {
     const data = this.profileResource.value();
     const user = this.user();
 
-    // Si no hay datos de Firestore, devolvemos un objeto base seguro
     if (!data) {
       return {
         uid: user?.uid ?? '',
@@ -51,68 +87,51 @@ export class Identity {
       };
     }
 
-    // Aseguramos que el nombre nunca sea undefined/null para evitar crashes de charAt(0)
     return {
       ...data,
       name: data.name || user?.displayName || 'Usuario'
     };
   });
 
+  /** Stream reactivo para servicios Legacy (como Inventory) que usan RxJS */
+  profile$ = toObservable(this.profile);
+
   isProfileLoading = computed(() => this.profileResource.isLoading());
+  isAuthenticated = computed(() => !!this.user());
+  userBranchId = computed(() => this.profile().branchId);
+  userRole = computed(() => this.profile().role);
 
   /** 
    * Sincronización Automática:
-   * Si el perfil tiene una branchId fija (Manager), forzamos esa sede en el sistema.
-   * Senior Architect Pattern: Inicialización de campo para efectos en servicios.
+   * Si el perfil tiene una branchId fija (Manager/Operator), forzamos esa sede.
    */
   private branchSyncEffect = effect(() => {
     const p = this.profile();
     if (p?.branchId) {
-      this.branchService.setActiveBranch(p.branchId);
+      this.branchState.activeBranchId.set(p.branchId);
     }
   });
 
-  // Otros métodos...
-
   /** 
-   * Gatekeeper de Arranque (Procedimiento Industrial):
-   * Bloquea el inicio del framework hasta que Firebase confirme el estado de sesión.
+   * Gatekeeper de Arranque:
+   * Bloquea el inicio del framework hasta que Firebase confirme la sesión.
    */
   init(): Promise<void> {
-    // Si estamos en el SERVIDOR (SSR/Prerender), no podemos determinar la sesión real.
-    // Resolvemos inmediatamente sin cambiar el estado (se queda en 'loading')
-    // para evitar que el servidor tome decisiones de seguridad erróneas.
     if (isPlatformServer(this.platformId)) {
-      console.log('[Auth] SSR - Bypassing Identity Gatekeeper');
       return Promise.resolve();
     }
 
     return new Promise((resolve) => {
       onAuthStateChanged(this.auth, (u) => {
-        console.log('[Auth] Browser - Identity Verified:', u ? 'AUTHENTICATED' : 'GUEST');
         this.authStatus.set(u ? 'authenticated' : 'unauthenticated');
         resolve();
       });
     });
   }
 
-  /** RxJS Stream para servicios que necesiten pipes */
-  get profile$() {
-    return user(this.auth).pipe(
-      switchMap(u => {
-        if (!u) return of(null);
-        const userRef = doc(this.firestore, `users/${u.uid}`);
-        return docData(userRef) as Observable<UserProfile>;
-      })
-    );
-  }
-
-  /** Helpers reactivos */
-  isAuthenticated = computed(() => !!this.user());
-  userBranchId = computed(() => this.profile()?.branchId);
-  userRole = computed(() => this.profile()?.role);
-
   async logout() {
-    return this.auth.signOut();
+    await signOut(this.auth);
+    this.authStatus.set('unauthenticated');
+    this.router.navigate(['/login']);
   }
 }

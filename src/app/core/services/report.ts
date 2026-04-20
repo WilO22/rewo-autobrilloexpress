@@ -1,7 +1,7 @@
 import { Injectable, inject, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Orders } from './order';
-import { Branches } from './branch';
+import { BranchState } from './branch.state';
 import { Order } from '../models';
 
 export interface BranchPerformance {
@@ -18,12 +18,10 @@ export interface GlobalKPIs {
   performanceByBranch: BranchPerformance[];
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class Reports {
   private orderService = inject(Orders);
-  private branchService = inject(Branches);
+  private branchService = inject(BranchState);
 
   /** Stream de todas las órdenes (limitado a 200 en el service para Spark Plan) */
   private allOrders = toSignal(this.orderService.getGlobalOrders(), { initialValue: [] as Order[] });

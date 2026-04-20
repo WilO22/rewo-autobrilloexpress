@@ -3,9 +3,7 @@ import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ServicePackage } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ServicePackages {
   private firestore = inject(Firestore);
 

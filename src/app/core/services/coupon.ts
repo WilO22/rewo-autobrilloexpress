@@ -7,9 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { Coupon } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class Coupons {
   private firestore = inject(Firestore);
 

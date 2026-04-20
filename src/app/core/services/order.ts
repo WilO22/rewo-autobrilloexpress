@@ -6,15 +6,16 @@ import {
 } from '@angular/fire/firestore';
 import { collectionData } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { Order, OrderStatus, ServicePackage, Coupon } from '../models';
+import { Order, OrderStatus, ServicePackage, Coupon, MembershipType } from '../models';
 import { Identity } from './auth';
+import { Pricing } from './pricing';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class Orders {
   private firestore = inject(Firestore);
   private identity = inject(Identity);
+  private pricing = inject(Pricing);
+
 
   /** Órdenes del día por sucursal (ARCH-FIREBASE regla 5: limit) */
   getOrdersByBranch(branchId: string, maxResults = 50): Observable<Order[]> {
@@ -63,49 +64,58 @@ export class Orders {
 
     return runTransaction(this.firestore, async (transaction) => {
       // 1. LECTURAS
-      const [slotSnap, branchSnap, customerSnap] = await Promise.all([
+      const [slotSnap, branchSnap, customerSnap, packageSnap] = await Promise.all([
         transaction.get(slotRef),
         transaction.get(branchRef),
-        transaction.get(customerRef)
+        transaction.get(customerRef),
+        transaction.get(doc(this.firestore, `services/${data.serviceId}`))
       ]);
 
       const capacity = branchSnap.exists() ? (branchSnap.data()?.['capacityPerSlot'] || 3) : 3;
       const currentOccupancy = slotSnap.exists() ? (slotSnap.data()?.['count'] || 0) : 0;
+      const basePackagePrice = packageSnap.exists() ? (packageSnap.data()?.['price'] || 0) : 0;
 
       // 2. VALIDACIÓN DE CAPACIDAD
       if (currentOccupancy >= capacity) {
         throw new Error(`Capacidad agotada para este horario (${capacity} vehículos máx).`);
       }
 
-      // 3. LÓGICA COMERCIAL (Membresías & Cupones)
-      let finalPrice = data.finalPrice;
-      let appliedDiscount = 0;
-
-      // Descuento automático por Membresía (10% OFF - Estándar Industrial)
-      if (customerSnap.exists() && customerSnap.data()?.['membershipId']) {
-        const membershipDiscount = finalPrice * 0.10;
-        finalPrice -= membershipDiscount;
-        appliedDiscount += membershipDiscount;
-      }
-
-      // Validación de Cupón (Un solo uso por cliente)
+      // 3. LÓGICA COMERCIAL (Membresías & Cupones) - Refactor SOLID ✅
+      let couponData: Coupon | null = null;
       if (couponRef) {
         const cSnap = await transaction.get(couponRef);
-        const cData = cSnap.data() as Coupon;
-        const usedBy = cData?.usedBy || [];
-        
-        if (cSnap.exists() && cData?.isActive && !usedBy.includes(data.customerId)) {
-          const couponDiscount = cData.type === 'PERCENT' 
-            ? (finalPrice * (cData.discount / 100))
-            : cData.discount;
-          
-          finalPrice -= couponDiscount;
-          appliedDiscount += couponDiscount;
+        couponData = cSnap.exists() ? cSnap.data() as Coupon : null;
 
-          transaction.update(couponRef, {
-            usedBy: arrayUnion(data.customerId)
-          });
+        // Validación de uso único (Invariante de Negocio)
+        if (couponData?.usedBy?.includes(data.customerId)) {
+          couponData = null; // Ignorar cupón si ya fue usado
         }
+      }
+
+      const customerData = customerSnap.data();
+      const membershipId = customerData?.['membershipId'];
+      let membershipType: MembershipType | null = null;
+      
+      if (membershipId) {
+        const mSnap = await transaction.get(doc(this.firestore, `memberships/${membershipId}`));
+        membershipType = mSnap.exists() ? mSnap.data()?.['type'] : null;
+      }
+
+      // FUENTE DE VERDAD: Usamos basePackagePrice obtenido del servidor, NO lo que mandó el cliente
+      const priceResult = this.pricing.calculate(
+        basePackagePrice, 
+        membershipType,
+        couponData,
+        data.customerId
+      );
+
+      const points = packageSnap.exists() ? (packageSnap.data()?.['pointsValue'] || 0) : 0;
+
+      // Si el cupón fue aplicado, registrar su uso
+      if (couponRef && priceResult.couponDiscount > 0) {
+        transaction.update(couponRef, {
+          usedBy: arrayUnion(data.customerId)
+        });
       }
 
       // 4. ESCRITURAS ATÓMICAS
@@ -116,7 +126,8 @@ export class Orders {
 
       transaction.set(orderRef, {
         ...data,
-        finalPrice: finalPrice, 
+        finalPrice: priceResult.finalPrice,
+        earnedPoints: points, // SOBREESCRITURA DE SEGURIDAD: Puntos del servidor, no del cliente
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });

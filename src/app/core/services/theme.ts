@@ -1,6 +1,6 @@
 import { Injectable, signal, effect, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Branches } from './branch';
+import { BranchState } from './branch.state';
 
 export interface ThemePalette {
   id: string;
@@ -27,7 +27,7 @@ export const PALETTES: ThemePalette[] = [
 })
 export class ThemeService {
   private platformId = inject(PLATFORM_ID);
-  private branchService = inject(Branches);
+  private branchState = inject(BranchState);
   
   // Señal del tema actual (Persistente)
   public currentTheme = signal<ThemePalette>(PALETTES[0]);
@@ -38,7 +38,7 @@ export class ThemeService {
   // SOLID: Motor de inyección centralizado
   private themeEffect = effect(() => {
     if (isPlatformBrowser(this.platformId)) {
-      const branchTheme = this.branchService.currentTheme();
+      const branchTheme = this.branchState.currentTheme();
       const userTheme = this.currentTheme();
       const style = document.documentElement.style;
       

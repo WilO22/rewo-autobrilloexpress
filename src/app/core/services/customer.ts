@@ -12,9 +12,7 @@ export interface PaginatedCustomers {
   total: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class Customers {
   private firestore = inject(Firestore);
 

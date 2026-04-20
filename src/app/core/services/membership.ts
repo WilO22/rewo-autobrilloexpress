@@ -6,9 +6,7 @@ import {
 import { Observable } from 'rxjs';
 import { Membership } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class Memberships {
   private firestore = inject(Firestore);
 

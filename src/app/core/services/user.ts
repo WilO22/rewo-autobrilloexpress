@@ -7,9 +7,7 @@ import { environment } from '../../../environments/environment';
 
 import { UserProfile } from '../models';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class Users {
   private firestore = inject(Firestore);
   

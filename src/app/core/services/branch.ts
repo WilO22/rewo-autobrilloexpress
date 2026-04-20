@@ -1,32 +1,23 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { doc, docData, Firestore, collection, collectionData, addDoc, updateDoc, serverTimestamp } from '@angular/fire/firestore';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { doc, Firestore, collection, addDoc, updateDoc, serverTimestamp } from '@angular/fire/firestore';
 import { Branch } from '../models';
+import { BranchState } from './branch.state';
 
-@Injectable({
-  providedIn: 'root'
-})
+/**
+ * Senior Architect Pattern: BranchManager
+ * Servicio que contiene SOLO la lógica administrativa.
+ * Se carga bajo demanda cuando se accede a las rutas de gestión.
+ */
+@Injectable()
 export class Branches {
   private firestore = inject(Firestore);
-  
-  public activeBranchId = signal<string | null>(null);
-  public showArchived = signal(false);
-  
-  // Lista de todas las sedes (Modernizado con rxResource con tipado explícito)
-  private allBranchesResource = rxResource<Branch[], void>({
-    stream: () => collectionData(collection(this.firestore, 'branches'), { idField: 'id' }) as Observable<Branch[]>
-  });
+  private state = inject(BranchState);
 
-  private allBranches = computed<Branch[]>(() => this.allBranchesResource.value() ?? []);
-
-  // Señal computada para sedes (Filtro reactivo por estado active)
-  public branches = computed(() => {
-    const archived = this.showArchived();
-    return this.allBranches().filter(b => 
-      archived ? b.active === false : b.active !== false
-    );
-  });
+  // Delegación de señales al estado centralizado
+  public activeBranchId = this.state.activeBranchId;
+  public showArchived = this.state.showArchived;
+  public branches = this.state.branches;
+  public currentTheme = this.state.currentTheme;
 
   async createBranch(data: Omit<Branch, 'id'>) {
     const ref = collection(this.firestore, 'branches');
@@ -45,7 +36,6 @@ export class Branches {
     });
   }
 
-  /** Archivamiento de sede (Borrado Lógico) */
   async deleteBranch(id: string) {
     const ref = doc(this.firestore, `branches/${id}`);
     return updateDoc(ref, {
@@ -54,7 +44,6 @@ export class Branches {
     });
   }
 
-  /** Reactivación de sede */
   async activateBranch(id: string) {
     const ref = doc(this.firestore, `branches/${id}`);
     return updateDoc(ref, {
@@ -64,52 +53,9 @@ export class Branches {
     });
   }
 
-  /** 
-   * Tema dinámico basado en la sede activa 
-   * Esto permite el "Color Coding" Senior que propusimos.
-   */
-  public currentTheme = computed(() => {
-    const activeId = this.activeBranchId();
-    if (!activeId) {
-      return {
-        accent: null,
-        secondary: null,
-        glow: null,
-        border: null,
-        secondaryGlow: null,
-        name: 'Todas las Sedes'
-      };
-    }
-
-    const branch = this.allBranches().find(b => b.id === activeId);
-    if (!branch) {
-      return {
-        accent: null,
-        secondary: null,
-        glow: null,
-        border: null,
-        secondaryGlow: null,
-        name: 'Cargando Sede...'
-      };
-    }
-    
-    // Extracción dinámica de datos desde Firestore (Fase 3: Motor Bi-Tonal)
-    const theme = branch.theme;
-    const accent = theme?.primary || null;
-    const secondary = theme?.secondary || null;
-    
-    return {
-      accent,
-      secondary,
-      glow: accent ? `${accent}40` : null, 
-      border: accent ? `${accent}15` : null,
-      secondaryGlow: secondary ? `${secondary}30` : null,
-      name: branch.name
-    };
-  });
-
   setActiveBranch(branchId: string | null) {
-    this.activeBranchId.set(branchId);
+    this.state.setActiveBranch(branchId);
   }
 }
+
 
