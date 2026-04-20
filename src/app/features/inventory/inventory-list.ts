@@ -6,7 +6,7 @@ import { effect } from '@angular/core';
 import { switchMap } from 'rxjs';
 import { Inventory } from '../../core/services/inventory';
 import { Identity } from '../../core/services/auth';
-import { Branches } from '../../core/services/branch';
+import { BranchState } from '../../core/services/branch.state';
 import { Toasts } from '../../core/services/ui/toast';
 import { InventoryItem } from '../../core/models';
 import { AppPaginator } from '../../shared/components/paginator/paginator';
@@ -22,7 +22,7 @@ import { Spinner } from '../../shared/components/spinner/spinner';
 export class InventoryList {
   public inventoryService = inject(Inventory);
   public authService = inject(Identity);
-  public branchService = inject(Branches);
+  public branchService = inject(BranchState);
   private toastService = inject(Toasts);
 
   // --- State Signals ---
@@ -45,6 +45,13 @@ export class InventoryList {
   // Estado del Modal de Confirmación
   isConfirmDialogOpen = signal(false);
   itemToDelete = signal<string | null>(null);
+  
+  // Estado para el Modal de Ajuste (Invariable de Auditoría Phase 1)
+  isAdjustModalOpen = signal(false);
+  itemToAdjust = signal<InventoryItem | null>(null);
+  adjustQuantity = signal(1);
+  adjustType = signal<'IN' | 'OUT'>('IN');
+  adjustReason = signal('');
 
   // Registro de efectos reactivos (UX Smart)
   private _resetPage = effect(() => {
@@ -220,20 +227,45 @@ export class InventoryList {
     }
   }
 
-  // --- AJUSTE RÁPIDO (SIN MODALES) ---
+  // --- FLUJO DE AJUSTE AUDITADO (Senior Architect Refactor) ---
 
-  async quickAdjust(item: InventoryItem, delta: number) {
-    const newStock = Math.max(0, item.stock + delta);
-    if (newStock === item.stock) return;
+  openAdjustModal(item: InventoryItem, type: 'IN' | 'OUT') {
+    this.itemToAdjust.set(item);
+    this.adjustType.set(type);
+    this.adjustQuantity.set(1);
+    this.adjustReason.set('');
+    this.isAdjustModalOpen.set(true);
+  }
+
+  async confirmAdjustment() {
+    const item = this.itemToAdjust();
+    const qty = this.adjustQuantity();
+    const type = this.adjustType();
+    const reason = this.adjustReason();
+
+    if (!item || qty <= 0 || !reason.trim()) {
+      this.toastService.error('Debe ingresar una cantidad válida y un motivo.');
+      return;
+    }
 
     this.isLoading.set(true);
     try {
-      await this.inventoryService.updateItem(item.id, { stock: newStock });
-    } catch (error) {
-      this.toastService.error('Error al ajustar stock.');
-      console.error('Quick adjust error:', error);
+      await this.inventoryService.registerAdjustment(
+        item.id,
+        item.branchId,
+        qty,
+        type,
+        reason.trim()
+      );
+      this.toastService.success(`Ajuste ${type} registrado con éxito.`);
+      this.isAdjustModalOpen.set(false);
+    } catch (error: any) {
+      this.toastService.error(error.message || 'Error al registrar el ajuste.');
+      console.error('Adjustment error:', error);
     } finally {
       this.isLoading.set(false);
     }
   }
+
+  // quickAdjust ha sido DEPRECADO para cumplir con la integridad del Kardex.
 }

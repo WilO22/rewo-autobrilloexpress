@@ -1,7 +1,7 @@
 import { Component, inject, computed, ChangeDetectionStrategy, signal, linkedSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { Branches } from '../../../core/services/branch';
+import { BranchState } from '../../../core/services/branch.state';
 import { Orders } from '../../../core/services/order';
 import { ServicePackages } from '../../../core/services/service-package';
 import { Toasts } from '../../../core/services/ui/toast';
@@ -15,7 +15,7 @@ import { of } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderBoard {
-  public branchService = inject(Branches);
+  public branchService = inject(BranchState);
   private orderService = inject(Orders);
   private packageService = inject(ServicePackages);
   private toastService = inject(Toasts);

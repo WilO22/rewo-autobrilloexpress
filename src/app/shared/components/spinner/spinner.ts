@@ -4,7 +4,7 @@ import { Component, input } from '@angular/core';
   selector: 'app-spinner',
   template: `
     @if (loading()) {
-      <div [class]="overlay() ? 'fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/60 backdrop-blur-sm' : 'flex items-center justify-center p-4'">
+      <div [class]="overlay() ? 'fixed inset-0 z-[500] flex items-center justify-center bg-gray-950/60 backdrop-blur-sm' : 'flex items-center justify-center p-4'">
         <div class="relative flex flex-col items-center gap-4">
           <!-- Círculo Ártico -->
           <div [class]="sizeClasses" 

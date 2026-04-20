@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Users } from '../../core/services/user';
 import { UserProfile } from '../../core/models';
-import { Branches } from '../../core/services/branch';
+import { BranchState } from '../../core/services/branch.state';
 import { Toasts } from '../../core/services/ui/toast';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Spinner } from '../../shared/components/spinner/spinner';
@@ -15,7 +15,7 @@ import { Spinner } from '../../shared/components/spinner/spinner';
 })
 export class TeamList {
   private userService = inject(Users);
-  private branchService = inject(Branches);
+  private branchService = inject(BranchState);
   private toastService = inject(Toasts);
   private fb = inject(FormBuilder);
 

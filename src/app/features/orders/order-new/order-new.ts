@@ -6,12 +6,14 @@ import { ServicePackages } from '../../../core/services/service-package';
 import { Customers } from '../../../core/services/customer';
 import { Memberships } from '../../../core/services/membership';
 import { Orders } from '../../../core/services/order';
-import { Branches } from '../../../core/services/branch';
+import { BranchState } from '../../../core/services/branch.state';
 import { ServicePackage, Customer, Membership } from '../../../core/models';
 
 import { CurrencyPipe, CommonModule } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { AppPaginator } from '../../../shared/components/paginator/paginator';
+import { Pricing } from '../../../core/services/pricing';
+
 
 @Component({
   selector: 'app-order-new',
@@ -22,10 +24,12 @@ import { AppPaginator } from '../../../shared/components/paginator/paginator';
 export class OrderNew {
   private router = inject(Router);
   private orderService = inject(Orders);
-  public branchService = inject(Branches);
+  public branchService = inject(BranchState);
   private packageService = inject(ServicePackages);
   private customerService = inject(Customers);
   private membershipService = inject(Memberships);
+  private pricing = inject(Pricing);
+
 
   /** Catálogo de datos reactivos */
   packages = toSignal(this.packageService.getPackages(), { initialValue: [] as ServicePackage[] });
@@ -76,16 +80,42 @@ export class OrderNew {
   vehiclePlate = signal('');
   selectedPackage = signal<ServicePackage | null>(null);
   selectedCustomer = signal<Customer | null>(null);
-  finalPrice = signal(0);
+  
+  /** 
+   * Cálculo reactivo via PricingEngine (SOLID)
+   * Se dispara automáticamente cuando cambia el paquete, el cliente o se cargan las membresías.
+   */
+  pricingResult = computed(() => {
+    const pkg = this.selectedPackage();
+    const customer = this.selectedCustomer();
+    const allMemberships = this.memberships();
+    
+    if (!pkg) return null;
+
+    const membership = customer?.membershipId 
+      ? allMemberships.find(m => m.id === customer.membershipId) 
+      : null;
+
+    return this.pricing.calculate(
+      pkg.price,
+      membership?.type,
+      null, // TODO: Soporte para cupones en UI en siguiente etapa
+      customer?.id
+    );
+  });
+
+  finalPrice = computed(() => this.pricingResult()?.finalPrice ?? 0);
+
   scheduledDate = signal('');
   scheduledTime = signal('');
+
   isSubmitting = signal(false);
   errorMessage = signal('');
 
   selectPackage(pkg: ServicePackage) {
     this.selectedPackage.set(pkg);
-    this.calculateFinalPrice();
   }
+
 
   onSearch(term: string) {
     this.searchTerm.set(term);
@@ -95,32 +125,10 @@ export class OrderNew {
   selectCustomer(customer: Customer) {
     this.selectedCustomer.set(customer);
     this.vehiclePlate.set(customer.activePlate || '');
-    this.calculateFinalPrice();
   }
 
-  /**
-   * Lógica crítica: Precio 0 si el cliente tiene membresía ILIMITADA.
-   * Basado en directiva de Gemini 3.1 Pro aceptada por usuario.
-   */
-  private calculateFinalPrice() {
-    const pkg = this.selectedPackage();
-    const customer = this.selectedCustomer();
-    
-    if (!pkg) {
-      this.finalPrice.set(0);
-      return;
-    }
 
-    if (customer?.membershipId) {
-      const membership = this.memberships().find(m => m.id === customer.membershipId);
-      if (membership?.type === 'ILIMITADO') {
-        this.finalPrice.set(0);
-        return;
-      }
-    }
 
-    this.finalPrice.set(pkg.price);
-  }
 
   async submitOrder() {
     const plate = this.vehiclePlate().trim().toUpperCase();
@@ -154,7 +162,7 @@ export class OrderNew {
         vehiclePlate: plate,
         serviceId: pkg.id,
         couponId: null,
-        finalPrice: this.finalPrice(),
+        finalPrice: pkg.price, // Enviamos el precio base, el servicio calculará el final con seguridad
         earnedPoints: pkg.pointsValue,
         status: 'AGENDADO',
         scheduledAt
