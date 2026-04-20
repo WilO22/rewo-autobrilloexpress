@@ -44,8 +44,8 @@ service cloud.firestore {
 
     // Órdenes: Aislamiento estricto por sucursal
     match /orders/{orderId} {
-      // Lectura por cliente (placa) o por equipo de la sucursal
-      allow get: if true; // Permitir tracking público por ID exacto
+      // Lectura por cliente (uid) o por equipo de la sucursal
+      allow get: if isAuthenticated() && (belongsToBranch(resource.data.branchId) || request.auth.uid == resource.data.customerId);
       allow list: if belongsToBranch(resource.data.branchId);
       
       allow create: if belongsToBranch(request.resource.data.branchId) &&
@@ -58,26 +58,39 @@ service cloud.firestore {
     // Inventario: Solo Managers de la sucursal o SuperAdmin
     match /inventory/{itemId} {
       allow read: if belongsToBranch(resource.data.branchId);
-      allow write: if isManagerOfBranch(request.resource.data.branchId);
+      allow create: if isManagerOfBranch(request.resource.data.branchId);
+      allow update: if isManagerOfBranch(request.resource.data.branchId);
+      allow delete: if isManagerOfBranch(resource.data.branchId);
     }
 
-    // Clientes: Registro público, lectura para personal de la sucursal
+    // Clientes: Aislamiento de PII (Solo el cliente o staff de sede accede)
     match /customers/{customerId} {
-      allow read: if isAuthenticated();
-      allow create: if true; // Registro abierto
-      // Permite actualización total a SuperAdmin.
-      // Permite actualización de PUNTOS al personal autenticado (necesario para finalizar órdenes).
+      // Lectura individual por el cliente o cualquier staff con sede activa
+      allow get: if isAuthenticated() && (request.auth.uid == customerId || getUserData().branchId != null || isSuperAdmin());
+      // Listado solo para personal interno con sede o administradores globales
+      allow list: if isAuthenticated() && (getUserData().branchId != null || isSuperAdmin());
+
+      allow create: if true; // Registro abierto (Landing)
+      
+      // Blindaje de Puntos: Solo staff, solo incrementos razonables (max 500)
       allow update: if isSuperAdmin() || 
-                    (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points', 'updatedAt']));
+                    (isAuthenticated() && 
+                     (getUserData().branchId != null || isSuperAdmin()) &&
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['points', 'updatedAt']) &&
+                     (request.resource.data.points - resource.data.points) <= 500); // Evita inflación masiva
+      
       allow delete: if isSuperAdmin();
     }
 
-    // Marketing: Cupones y Membresías (Globales)
+    // Marketing: Cupones Protegidos (Solo el usuario puede marcar su propio uso)
     match /coupons/{couponId} {
       allow read: if isAuthenticated();
       allow create, delete: if isSuperAdmin();
       allow update: if isSuperAdmin() || 
-                    (isAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy']));
+                    (isAuthenticated() && 
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy']) &&
+                     request.resource.data.usedBy.size() == (resource.data.usedBy.size() + 1) &&
+                     request.auth.uid in request.resource.data.usedBy);
     }
 
     match /memberships/{membershipId} {
@@ -91,12 +104,14 @@ service cloud.firestore {
       allow write: if isSuperAdmin();
     }
 
-    // Agenda: Control de capacidad por sucursal
+    // Agenda: Control de capacidad por sucursal (Ahora permite Operadores de la sede)
     match /branch_slots/{slotId} {
       allow read: if isAuthenticated();
-      // El ID del slot empieza con branchId, lo usamos para validar
-      allow write: if isManagerOfBranch(slotId.split('_')[0]);
+      // Permitir a cualquier operario de la sede escribir en el slot para reservar capacidad
+      allow write: if belongsToBranch(slotId.split('_')[0]);
     }
+
+
 
     // Transacciones de Lealtad: Historial de puntos
     match /loyalty_transactions/{txId} {

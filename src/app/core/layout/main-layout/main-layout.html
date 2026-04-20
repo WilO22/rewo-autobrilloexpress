@@ -33,27 +33,27 @@
     <aside class="hidden md:flex flex-col w-64 xl:w-72 h-full bg-navy/90 backdrop-blur-xl border-r border-app-accent/20 p-4 transition-all duration-500">
         
         <!-- Root Context: Branch Selector -->
-        <div class="mb-6" *ngIf="branchService.branches().length > 0">
+        <div class="mb-6" *ngIf="branchState.branches().length > 0">
           <label class="text-[10px] text-gray-500 font-bold tracking-widest uppercase ml-2 mb-2 block">Contexto de Sede</label>
           <div class="relative">
             <button 
               (click)="toggleDropdown()"
               [disabled]="authService.userRole() === 'MANAGER'"
               class="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-white/5 border transition-all duration-300 group"
-              [class.border-white/10]="!branchService.activeBranchId()"
-              [class.border-app-accent/30]="branchService.activeBranchId()"
-              [style.box-shadow]="branchService.activeBranchId() ? '0 0 20px var(--app-glow)' : 'none'"
+              [class.border-white/10]="!branchState.activeBranchId()"
+              [class.border-app-accent/30]="branchState.activeBranchId()"
+              [style.box-shadow]="branchState.activeBranchId() ? '0 0 20px var(--app-glow)' : 'none'"
             >
               <div class="flex items-center gap-3 overflow-hidden">
                 <div class="relative flex h-2 w-2 shrink-0">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" [style.background-color]="branchService.currentTheme().accent"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2" [style.background-color]="branchService.currentTheme().accent"></span>
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" [style.background-color]="branchState.currentTheme().accent"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2" [style.background-color]="branchState.currentTheme().accent"></span>
                 </div>
                 <div class="flex flex-col items-start overflow-hidden">
                   <span class="font-bold text-gray-200 truncate group-hover:text-white transition-colors text-sm">
-                    {{ branchService.currentTheme().name }}
+                    {{ branchState.currentTheme().name }}
                   </span>
-                  @if (!branchService.activeBranchId()) {
+                  @if (!branchState.activeBranchId()) {
                     <span class="text-[8px] text-gray-500 font-black uppercase tracking-tighter">Panel de Gestión</span>
                   }
                 </div>
@@ -76,26 +76,26 @@
                   *ngIf="authService.userRole() === 'SUPER_ADMIN'"
                   (click)="selectBranch(null)"
                   class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all hover:bg-white/5"
-                  [class.bg-white/10]="!branchService.activeBranchId()"
-                  [class.text-app-accent]="!branchService.activeBranchId()"
-                  [class.text-gray-400]="branchService.activeBranchId()"
+                  [class.bg-white/10]="!branchState.activeBranchId()"
+                  [class.text-app-accent]="!branchState.activeBranchId()"
+                  [class.text-gray-400]="branchState.activeBranchId()"
                 >
                   <span class="font-bold">Todas las Sedes</span>
-                  <div *ngIf="!branchService.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-app-accent shadow-[0_0_8px_var(--app-glow)]"></div>
+                  <div *ngIf="!branchState.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-app-accent shadow-[0_0_8px_var(--app-glow)]"></div>
                 </button>
 
                 <div class="h-px bg-white/5 my-1" *ngIf="authService.userRole() === 'SUPER_ADMIN'"></div>
 
                 <button 
-                  *ngFor="let b of branchService.branches()"
+                  *ngFor="let b of branchState.branches()"
                   (click)="selectBranch(b.id)"
                   class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all hover:bg-white/5"
-                  [class.bg-white/10]="b.id === branchService.activeBranchId()"
-                  [class.text-app-accent]="b.id === branchService.activeBranchId()"
-                  [class.text-gray-400]="b.id !== branchService.activeBranchId()"
+                  [class.bg-white/10]="b.id === branchState.activeBranchId()"
+                  [class.text-app-accent]="b.id === branchState.activeBranchId()"
+                  [class.text-gray-400]="b.id !== branchState.activeBranchId()"
                 >
                   <span class="font-medium text-left truncate">{{ b.name }}</span>
-                  <div *ngIf="b.id === branchService.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-app-accent shadow-[0_0_8px_var(--app-glow)]"></div>
+                  <div *ngIf="b.id === branchState.activeBranchId()" class="w-1.5 h-1.5 rounded-full bg-app-accent shadow-[0_0_8px_var(--app-glow)]"></div>
                 </button>
               </div>
             </div>

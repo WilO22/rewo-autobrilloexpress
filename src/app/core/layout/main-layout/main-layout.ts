@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, effect, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet, RouterModule, Router } from '@angular/router';
 import { BottomNav } from '../bottom-nav/bottom-nav';
-import { Branches } from '../../services/branch';
+import { BranchState } from '../../services/branch.state';
 import { ThemeService } from '../../services/theme';
 import { Identity } from '../../services/auth';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -13,7 +13,7 @@ import { ThemeSelector } from '../../components/ui/theme-selector';
   templateUrl: './main-layout.html',
 })
 export class MainLayout implements OnInit {
-  public branchService = inject(Branches);
+  public branchState = inject(BranchState);
   private router = inject(Router);
   public authService = inject(Identity);
   private themeService = inject(ThemeService);
@@ -28,7 +28,7 @@ export class MainLayout implements OnInit {
   }
 
   selectBranch(id: string | null) {
-    this.branchService.setActiveBranch(id);
+    this.branchState.setActiveBranch(id);
     this.isDropdownOpen.set(false);
   }
 
