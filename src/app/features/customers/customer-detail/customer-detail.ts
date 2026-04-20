@@ -1,16 +1,31 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, linkedSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, map } from 'rxjs';
+import { toSignal, rxResource } from '@angular/core/rxjs-interop';
+import { map, of } from 'rxjs';
 import { Customers } from '../../../core/services/customer';
 import { Memberships } from '../../../core/services/membership';
 import { Toasts } from '../../../core/services/ui/toast';
+import { Customer, Membership } from '../../../core/models';
+
+import { ChangeDetectionStrategy } from '@angular/core';
+import { CustomerIdentityComponent } from './components/customer-identity.component';
+import { ActiveMembershipComponent, MembershipInfo } from './components/active-membership.component';
+import { PlanSelectorComponent } from './components/plan-selector.component';
 
 @Component({
   selector: 'app-customer-detail',
-  imports: [CommonModule, RouterLink],
-  templateUrl: './customer-detail.html'
+  standalone: true,
+  imports: [
+    CommonModule, 
+    RouterLink,
+    CustomerIdentityComponent,
+    ActiveMembershipComponent,
+    PlanSelectorComponent
+  ],
+  templateUrl: './customer-detail.html',
+  styleUrl: './customer-detail.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomerDetail {
   private route = inject(ActivatedRoute);
@@ -21,14 +36,31 @@ export class CustomerDetail {
   // Cargando estado
   loading = signal(false);
 
-  // 1. Capturar ID y cargar Cliente
-  private customerId$ = this.route.paramMap.pipe(map(params => params.get('id')!));
-  customer = toSignal(this.customerId$.pipe(
-    switchMap(id => this.customerService.getCustomer(id))
-  ));
+  // 1. Recursos Reactivos (ARCH-EDO-1: Carga declarativa)
+  private id$ = this.route.paramMap.pipe(map(params => params.get('id')!));
+  customerId = toSignal(this.id$);
 
-  // 2. Cargar todas las membresías disponibles (para el selector)
-  memberships = toSignal(this.membershipService.getMemberships(), { initialValue: [] });
+  customerResource = rxResource<Customer | undefined, string | undefined>({
+    params: () => this.customerId(),
+    stream: ({ params: id }) => id ? this.customerService.getCustomer(id) : of(undefined)
+  });
+
+  membershipsResource = rxResource<Membership[], void>({
+    stream: () => this.membershipService.getMemberships()
+  });
+
+  // Alias para conveniencia en el template
+  customer = computed(() => this.customerResource.value());
+  memberships = computed(() => this.membershipsResource.value() ?? []);
+
+  /** 
+   * Sincronización de selección (Modern Angular Pattern)
+   * Se reinicia automáticamente cuando el recurso del cliente cambia.
+   */
+  selectedMembershipId = linkedSignal({
+    source: () => this.customer()?.membershipId,
+    computation: (id) => id ?? null
+  });
 
   // 3. Obtener la membresía actual del cliente (si tiene una)
   activeMembership = computed(() => {
@@ -45,11 +77,16 @@ export class CustomerDetail {
 
     try {
       this.loading.set(true);
+      this.selectedMembershipId.set(membershipId); // Optimistic UI
       await this.customerService.updateCustomer(id, { membershipId });
       this.toastService.show('Membresía asignada correctamente', 'success');
+      // Recargamos para asegurar consistencia
+      this.customerResource.reload();
     } catch (error: any) {
       console.error('Error al asignar membresía:', error);
       this.toastService.show('No se pudo asignar la membresía', 'error');
+      // Revertimos en caso de error
+      this.selectedMembershipId.set(this.customer()?.membershipId ?? null);
     } finally {
       this.loading.set(false);
     }
@@ -64,6 +101,7 @@ export class CustomerDetail {
       this.loading.set(true);
       await this.customerService.updateCustomer(id, { membershipId: null });
       this.toastService.show('Membresía removida', 'success');
+      this.customerResource.reload();
     } catch (error: any) {
       this.toastService.show('Error al remover membresía', 'error');
     } finally {

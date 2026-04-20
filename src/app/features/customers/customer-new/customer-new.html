@@ -70,12 +70,7 @@
                 [disabled]="isLoading()"
                 class="relative group px-10 py-4 bg-white text-navy font-black rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:shadow-app-accent/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100">
           <span class="relative z-10 flex items-center gap-2">
-            @if (isLoading()) {
-              <div class="w-4 h-4 border-2 border-navy/30 border-t-navy rounded-full animate-spin"></div>
-              GUARDANDO...
-            } @else {
-              REGISTRAR CLIENTE
-            }
+            REGISTRAR CLIENTE
           </span>
           <div class="absolute inset-x-0 bottom-0 h-1 bg-app-accent scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></div>
         </button>
@@ -83,3 +78,6 @@
     </div>
   </div>
 </div>
+
+<!-- Bloqueador de Sistema (Senior Pattern) -->
+<app-spinner [loading]="isLoading()" [overlay]="true" message="REGISTRANDO CLIENTE..." />

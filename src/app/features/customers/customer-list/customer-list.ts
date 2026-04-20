@@ -1,7 +1,8 @@
-import { Component, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, computed, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, isPlatformServer } from '@angular/common';
 import { toSignal, rxResource } from '@angular/core/rxjs-interop';
+import { of } from 'rxjs';
 import { Customers } from '../../../core/services/customer';
 import { Customer } from '../../../core/models';
 import { AppPaginator } from '../../../shared/components/paginator/paginator';
@@ -14,22 +15,30 @@ import { AppPaginator } from '../../../shared/components/paginator/paginator';
 })
 export class CustomerList {
   private customerService = inject(Customers);
+  private platformId = inject(PLATFORM_ID);
 
   searchTerm = signal('');
   currentPage = signal(1);
-  pageSize = 12;
+  pageSize = 20;
 
   /** 
    * Índice de búsqueda híbrida (ARCH-EDO-1: Carga única reactiva)
    */
   customersResource = rxResource({
-    stream: () => this.customerService.getSearchIndex()
+    // ARCH-SENIOR: No ejecutamos consultas pesadas de Firestore en SSR
+    // para evitar Permission Denied por falta de token en el servidor.
+    stream: () => isPlatformServer(this.platformId) 
+      ? of([]) 
+      : this.customerService.getSearchIndex()
   });
 
   /** 
    * Búsqueda inteligente por cualquier coincidencia y case-insensitive (PEDIDO-USUARIO)
    */
   filteredCustomers = computed(() => {
+    // ARCH-SAFE: Acceso seguro al valor para evitar que el resource sople un error en el template
+    if (this.customersResource.error()) return [];
+    
     const term = this.searchTerm().toLowerCase().trim();
     const all = this.customersResource.value() ?? [];
     
@@ -57,5 +66,15 @@ export class CustomerList {
   /** Determina si el cliente es VIB (>= 1000 puntos) */
   isVib(customer: Customer): boolean {
     return customer.points >= 1000;
+  }
+
+  /** Extrae las iniciales del nombre para el avatar */
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   }
 }

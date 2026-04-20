@@ -2,10 +2,11 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Customers } from '../../../core/services/customer';
+import { Spinner } from '../../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-customer-new',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Spinner],
   templateUrl: './customer-new.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

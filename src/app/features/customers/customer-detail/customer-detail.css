@@ -1,0 +1,32 @@
+.detail-container {
+  container-type: inline-size;
+  container-name: customer-detail;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@container customer-detail (min-width: 900px) {
+  .layout-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .main-column {
+    grid-column: span 2;
+  }
+  
+  .side-column {
+    grid-column: span 1;
+  }
+}
+
+/* Scroll area para membresías con alto fijo */
+.memberships-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.2) transparent;
+}
